@@ -230,20 +230,42 @@ export default function Home() {
               <h2 className="mb-5 text-2xl font-bold text-white">入力</h2>
 
               <div className="space-y-4">
+                <label className="block text-sm font-bold text-cyan-300">
+  ① 作成済みアプリ
+</label>
+
+<p className="text-sm text-slate-400">
+  これまで作成した医療アプリを入力してください。
+  例：血液ガス診断支援ツール、電解質異常診断支援ツール、神経診察診断補助ツール
+</p>
                 <textarea
                   className="min-h-36 w-full rounded-2xl border border-slate-600 bg-slate-900 p-4 text-slate-100 outline-none placeholder:text-slate-500 focus:border-cyan-400"
                   placeholder="作成済みアプリ"
                   value={apps}
                   onChange={(e) => setApps(e.target.value)}
                 />
+<label className="block text-sm font-bold text-cyan-300">
+  ② 専門領域
+</label>
 
+<p className="text-sm text-slate-400">
+  ご自身の専門領域を入力してください。
+  例：糖尿病内科、総合内科、内分泌内科
+</p>
                 <input
                   className="w-full rounded-2xl border border-slate-600 bg-slate-900 p-4 text-slate-100 outline-none placeholder:text-slate-500 focus:border-cyan-400"
                   placeholder="専門領域"
                   value={specialty}
                   onChange={(e) => setSpecialty(e.target.value)}
                 />
+<label className="block text-sm font-bold text-cyan-300">
+  ③ 目標
+</label>
 
+<p className="text-sm text-slate-400">
+  このアプリで達成したいことを入力してください。
+  例：教育、診療支援、Note発信、研究、収益化
+</p>
                 <input
                   className="w-full rounded-2xl border border-slate-600 bg-slate-900 p-4 text-slate-100 outline-none placeholder:text-slate-500 focus:border-cyan-400"
                   placeholder="目標"
