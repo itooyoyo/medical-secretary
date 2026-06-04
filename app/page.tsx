@@ -199,16 +199,16 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-[#111827] p-6 text-slate-100">
+    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-cyan-950 p-6 text-slate-100">
       <div className="mx-auto max-w-7xl">
-        <section className="mb-6 rounded-3xl border border-cyan-400/20 bg-slate-800/90 p-8 shadow-2xl shadow-cyan-950/40">
+        <section className="mb-6 rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-xl">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
               <div className="mb-4 inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-bold text-cyan-300">
                 Dr. Ito App Empire Dashboard
               </div>
 
-              <h1 className="mb-3 text-4xl font-bold tracking-tight text-white">
+              <h1 className="mb-3 bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-5xl font-extrabold tracking-tight text-transparent">
                 医療アプリ開発秘書
               </h1>
 
@@ -405,6 +405,9 @@ export default function Home() {
       <p className="text-slate-500">
         Medical App Empire Dashboard
       </p>
+<p className="text-slate-500">
+  Version 1.0.0 | Last Updated: 2026-06-04
+</p>
     </div>
   </div>
 </footer>
