@@ -387,6 +387,27 @@ export default function Home() {
           </div>
         </section>
       </div>
+      <footer className="mt-12 rounded-3xl border border-slate-700 bg-slate-900 p-6 text-sm text-slate-400">
+  <div className="space-y-3">
+    <p>
+      本ツールは教育・開発支援目的で提供されています。
+      実際の診療判断は各種ガイドラインおよび担当医の臨床判断に基づいて行ってください。
+    </p>
+
+    <p>
+      個人情報・患者識別情報（氏名、生年月日、ID等）は入力しないでください。
+    </p>
+
+    <div className="border-t border-slate-700 pt-3">
+      <p className="font-semibold text-cyan-300">
+        Developed by Dr. Ito
+      </p>
+      <p className="text-slate-500">
+        Medical App Empire Dashboard
+      </p>
+    </div>
+  </div>
+</footer>
     </main>
   );
 }
