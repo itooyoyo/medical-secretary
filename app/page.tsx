@@ -70,7 +70,7 @@ export default function Home() {
   const [goal, setGoal] = useState("教育、診療支援、Note発信");
   const [result, setResult] = useState<Result | null>(null);
   const [showApps, setShowApps] = useState(false);
-  const [showNotes, setShowNotes] = useState(true);
+  const [showNotes, setShowNotes] = useState(false);
   const [notes, setNotes] = useState<NoteItem[]>([]);
 
   useEffect(() => {
