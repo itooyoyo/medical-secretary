@@ -334,6 +334,30 @@ export default function Home() {
                 </div>
               )}
             </div>
+           <div className="rounded-3xl border border-slate-700 bg-slate-900 p-5">
+  <h2 className="mb-4 text-xl font-bold text-white">
+    📊 Antaa Slide
+  </h2>
+
+  <a
+    href="https://slide.antaa.jp/profile/aEvSNVPlS4Cj"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="block rounded-2xl border border-fuchsia-400/30 bg-fuchsia-400/10 p-4 transition hover:bg-fuchsia-400/20"
+  >
+    <p className="font-bold text-white">
+      Dr.Ito Antaaプロフィール
+    </p>
+
+    <p className="mt-2 text-sm text-slate-300">
+      投稿したAntaa Slideを一覧表示
+    </p>
+
+    <p className="mt-2 text-fuchsia-300">
+      プロフィールを開く →
+    </p>
+  </a>
+</div> 
           </div>
 
           <div className="space-y-6">
