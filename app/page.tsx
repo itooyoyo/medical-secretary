@@ -191,15 +191,15 @@ export default function Home() {
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
               <div className="mb-4 inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-bold text-cyan-300">
-                Dr. Ito App Empire Dashboard
+                Dr. Ito Medical Hub
               </div>
 
               <h1 className="mb-3 bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-5xl font-extrabold tracking-tight text-transparent">
-                医療アプリ開発秘書
+                Dr. Ito Medical Hub
               </h1>
 
               <p className="max-w-3xl text-slate-300">
-                作成済みアプリを「領域」として分析し、次に作るべき医療アプリ・Note記事案・開発方針を提案します。
+                医療アプリ・Antaa Slide・Noteを統合した診療支援ポータル
               </p>
             </div>
 
