@@ -55,6 +55,12 @@ const myApps = [
     icon: "⚡",
   },
   {
+  name: "動悸・頻脈初期対応支援",
+  category: "救急",
+  url: "https://tachy-check-flow.base44.app",
+  icon: "❤️",
+},
+  {
     name: "神経診察診断補助ツール",
     category: "神経",
     url: "https://neuro-path-scan.base44.app",
