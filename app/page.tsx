@@ -61,6 +61,12 @@ const myApps = [
   icon: "❤️",
 },
   {
+    name: "TachyScan Pro",
+    category: "救急",
+    url: "https://tachyscan-pro.vercel.app/",
+    icon: "❤️",
+  },
+  {
     name: "神経診察診断補助ツール",
     category: "神経",
     url: "https://neuro-path-scan.base44.app",
