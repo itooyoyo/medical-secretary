@@ -43,6 +43,12 @@ const myApps = [
     icon: "🩸",
   },
   {
+    name: "酸塩基異常診断支援",
+    category: "救急",
+    url: "https://acid-base-diagnostic-assistant.vercel.app/",
+    icon: "🩸",
+  },
+  {
     name: "甲状腺クリーゼ治療補助ツール",
     category: "内分泌救急",
     url: "https://thyro-score-flow.base44.app/",
