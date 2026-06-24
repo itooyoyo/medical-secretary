@@ -55,6 +55,12 @@ const myApps = [
     icon: "⚡",
   },
   {
+    name: "電解質異常診断支援",
+    category: "救急",
+    url: "https://electrolyte-diagnostic-assistant.vercel.app/",
+    icon: "⚡",
+  },
+  {
     name: "TachyScan Pro",
     category: "救急",
     url: "https://tachyscan-pro.vercel.app/",
