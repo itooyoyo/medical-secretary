@@ -66,11 +66,17 @@ const myApps = [
     url: "https://neuro-path-scan.base44.app",
     icon: "🧠",
   },
+  {
+    name: "神経局在診断支援",
+    category: "神経",
+    url: "https://neuro-localizer.vercel.app/",
+    icon: "🧠",
+  },
 ];
 
 export default function Home() {
   const [apps, setApps] = useState(
-    "糖尿病治療薬選択補助ツール、酸塩基異常診断支援、甲状腺クリーゼ治療補助ツール、電解質異常診断支援、神経診察診断補助ツール"
+    "糖尿病治療薬選択補助ツール、酸塩基異常診断支援、甲状腺クリーゼ治療補助ツール、電解質異常診断支援、神経診察診断補助ツール、神経局在診断支援"
   );
   const [specialty, setSpecialty] = useState("糖尿病内科、総合内科");
   const [goal, setGoal] = useState("教育、診療支援、Note発信");
