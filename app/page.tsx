@@ -37,12 +37,6 @@ const myApps = [
     icon: "💊",
   },
   {
-    name: "血液ガス診断支援ツール",
-    category: "救急",
-    url: "https://rational-gas-analyze-now.base44.app/",
-    icon: "🩸",
-  },
-  {
     name: "酸塩基異常診断支援",
     category: "救急",
     url: "https://acid-base-diagnostic-assistant.vercel.app/",
@@ -76,7 +70,7 @@ const myApps = [
 
 export default function Home() {
   const [apps, setApps] = useState(
-    "糖尿病治療薬選択補助ツール、血液ガス診断支援ツール、甲状腺クリーゼ治療補助ツール、電解質異常診断補助ツール、神経診察診断補助ツール"
+    "糖尿病治療薬選択補助ツール、酸塩基異常診断支援、甲状腺クリーゼ治療補助ツール、電解質異常診断補助ツール、神経診察診断補助ツール"
   );
   const [specialty, setSpecialty] = useState("糖尿病内科、総合内科");
   const [goal, setGoal] = useState("教育、診療支援、Note発信");
