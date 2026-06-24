@@ -31,12 +31,6 @@ type NoteItem = {
 
 const myApps = [
   {
-    name: "糖尿病治療薬選択補助ツール",
-    category: "糖尿病",
-    url: "https://economic-med-script-flow.base44.app",
-    icon: "💊",
-  },
-  {
     name: "糖尿病治療薬選択支援",
     category: "糖尿病",
     url: "https://diabetes-treatment-assistant.vercel.app/",
@@ -76,7 +70,7 @@ const myApps = [
 
 export default function Home() {
   const [apps, setApps] = useState(
-    "糖尿病治療薬選択補助ツール、糖尿病治療薬選択支援、酸塩基異常診断支援、甲状腺クリーゼ診断支援、電解質異常診断支援、神経局在診断支援"
+    "糖尿病治療薬選択支援、酸塩基異常診断支援、甲状腺クリーゼ診断支援、電解質異常診断支援、神経局在診断支援"
   );
   const [specialty, setSpecialty] = useState("糖尿病内科、総合内科");
   const [goal, setGoal] = useState("教育、診療支援、Note発信");
