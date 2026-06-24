@@ -29,7 +29,15 @@ type NoteItem = {
   pubDate: string;
 };
 
-const myApps = [
+type MyApp = {
+  name: string;
+  category: string;
+  description?: string;
+  url: string;
+  icon: string;
+};
+
+const myApps: MyApp[] = [
   {
     name: "糖尿病治療薬選択支援",
     category: "糖尿病",
@@ -55,8 +63,9 @@ const myApps = [
     icon: "⚡",
   },
   {
-    name: "TachyScan Pro",
-    category: "救急",
+    name: "頻脈初期対応支援",
+    category: "循環器・救急",
+    description: "頻脈患者の初期評価と対応方針を支援",
     url: "https://tachyscan-pro.vercel.app/",
     icon: "❤️",
   },
@@ -68,9 +77,28 @@ const myApps = [
   },
 ];
 
+const appCategories = [
+  {
+    title: "🚑 救急・当直",
+    appNames: ["酸塩基異常診断支援", "頻脈初期対応支援", "電解質異常診断支援"],
+  },
+  {
+    title: "🧠 神経",
+    appNames: ["神経局在診断支援"],
+  },
+  {
+    title: "🦋 内分泌",
+    appNames: ["甲状腺クリーゼ診断支援"],
+  },
+  {
+    title: "💊 糖尿病",
+    appNames: ["糖尿病治療薬選択支援"],
+  },
+];
+
 export default function Home() {
   const [apps, setApps] = useState(
-    "糖尿病治療薬選択支援、酸塩基異常診断支援、甲状腺クリーゼ診断支援、電解質異常診断支援、神経局在診断支援"
+    "糖尿病治療薬選択支援、酸塩基異常診断支援、甲状腺クリーゼ診断支援、電解質異常診断支援、頻脈初期対応支援、神経局在診断支援"
   );
   const [specialty, setSpecialty] = useState("糖尿病内科、総合内科");
   const [goal, setGoal] = useState("教育、診療支援、Note発信");
@@ -283,27 +311,49 @@ export default function Home() {
               </div>
 
               {showApps && (
-                <div className="space-y-3">
-                  {myApps.map((app) => (
-                    <a
-                      key={app.name}
-                      href={app.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block rounded-2xl border border-slate-700 bg-slate-800 p-4 transition hover:border-cyan-400 hover:bg-slate-700"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <p className="font-bold text-white">
-                            {app.icon} {app.name}
-                          </p>
-                          <p className="mt-1 text-sm text-slate-400">
-                            {app.category}
-                          </p>
-                        </div>
-                        <span className="text-sm text-cyan-300">開く →</span>
-                      </div>
-                    </a>
+                <div className="space-y-5">
+                  {appCategories.map((category) => (
+                    <section key={category.title} className="space-y-3">
+                      <h3 className="text-sm font-bold text-cyan-300">
+                        {category.title}
+                      </h3>
+                      {category.appNames.map((appName) => {
+                        const app = myApps.find((item) => item.name === appName);
+
+                        if (!app) {
+                          return null;
+                        }
+
+                        return (
+                          <a
+                            key={app.name}
+                            href={app.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block rounded-2xl border border-slate-700 bg-slate-800 p-4 transition hover:border-cyan-400 hover:bg-slate-700"
+                          >
+                            <div className="flex items-center justify-between gap-3">
+                              <div>
+                                <p className="font-bold text-white">
+                                  {app.icon} {app.name}
+                                </p>
+                                <p className="mt-1 text-sm text-slate-400">
+                                  {app.category}
+                                </p>
+                                {app.description && (
+                                  <p className="mt-1 text-xs text-slate-500">
+                                    {app.description}
+                                  </p>
+                                )}
+                              </div>
+                              <span className="text-sm text-cyan-300">
+                                開く →
+                              </span>
+                            </div>
+                          </a>
+                        );
+                      })}
+                    </section>
                   ))}
                 </div>
               )}
