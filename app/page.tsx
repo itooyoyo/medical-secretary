@@ -49,6 +49,12 @@ const myApps = [
     icon: "🦋",
   },
   {
+    name: "甲状腺クリーゼ診断支援",
+    category: "内分泌",
+    url: "https://thyroid-crisis-navigator.vercel.app/",
+    icon: "🦋",
+  },
+  {
     name: "電解質異常診断支援",
     category: "救急",
     url: "https://electrolyte-diagnostic-assistant.vercel.app/",
