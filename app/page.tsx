@@ -2,6 +2,8 @@ type AppItem = {
   name: string;
   url: string;
   icon: string;
+  subtitle?: string;
+  isNew?: boolean;
 };
 
 type AppCategory = {
@@ -11,6 +13,19 @@ type AppCategory = {
 };
 
 const appCategories: AppCategory[] = [
+  {
+    title: "🏥 総合内科",
+    description: "総合内科・救急での診断推論や検査値の整理を支援するツール群です。",
+    apps: [
+      {
+        name: "発熱・CRP診断支援",
+        subtitle: "総合内科・救急向け診断推論支援",
+        url: "https://fever-diagnostic-assistant.vercel.app/",
+        icon: "🔥",
+        isNew: true,
+      },
+    ],
+  },
   {
     title: "🚑 救急・当直",
     description: "初期対応、検査値の整理、緊急度判断を支援するツール群です。",
@@ -124,9 +139,21 @@ export default function Home() {
                         {app.icon}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="font-bold leading-snug text-white">
-                          {app.name}
-                        </p>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="font-bold leading-snug text-white">
+                            {app.name}
+                          </p>
+                          {app.isNew ? (
+                            <span className="rounded-full border border-amber-300/40 bg-amber-300/15 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-amber-200">
+                              NEW
+                            </span>
+                          ) : null}
+                        </div>
+                        {app.subtitle ? (
+                          <p className="mt-1 text-sm leading-relaxed text-slate-300">
+                            {app.subtitle}
+                          </p>
+                        ) : null}
                         <p className="mt-2 break-words text-xs leading-relaxed text-slate-400">
                           {app.url}
                         </p>
