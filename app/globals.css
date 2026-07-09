@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #020612;
+  --foreground: #f8fafc;
 }
 
 @theme inline {
@@ -12,15 +12,64 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.medical-console {
+  background:
+    linear-gradient(180deg, rgba(8, 27, 50, 0.94) 0%, rgba(1, 5, 15, 0.98) 48%, rgba(5, 18, 35, 0.96) 100%),
+    radial-gradient(circle at 50% 18%, rgba(34, 211, 238, 0.16), transparent 32%),
+    radial-gradient(circle at 78% 70%, rgba(14, 165, 233, 0.1), transparent 28%),
+    #020612;
+}
+
+.console-stars {
+  opacity: 0.75;
+  background-image:
+    radial-gradient(circle, rgba(226, 232, 240, 0.42) 0 1px, transparent 1.4px),
+    radial-gradient(circle, rgba(34, 211, 238, 0.24) 0 1px, transparent 1.6px),
+    linear-gradient(rgba(34, 211, 238, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.05) 1px, transparent 1px);
+  background-position:
+    0 0,
+    22px 36px,
+    center,
+    center;
+  background-size:
+    86px 86px,
+    132px 132px,
+    72px 72px,
+    72px 72px;
+  mask-image: linear-gradient(to bottom, black, rgba(0, 0, 0, 0.58), transparent 92%);
+}
+
+.guide-hologram::before {
+  position: absolute;
+  inset: 5% 8% 28%;
+  content: "";
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.35), rgba(14, 165, 233, 0.12) 42%, transparent 70%);
+  filter: blur(18px);
+}
+
+.guide-hologram::after {
+  position: absolute;
+  top: 16%;
+  left: 50%;
+  width: 15rem;
+  height: 15rem;
+  content: "";
+  transform: translateX(-50%);
+  border: 1px solid rgba(34, 211, 238, 0.12);
+  border-radius: 999px;
+  box-shadow:
+    0 0 42px rgba(34, 211, 238, 0.14),
+    inset 0 0 32px rgba(34, 211, 238, 0.08);
 }
