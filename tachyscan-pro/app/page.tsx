@@ -99,9 +99,9 @@ function getDiagnosis(data: Data): Diagnosis {
     return {
       category: "無脈性VT/VFを含む心停止対応",
       candidates: ["無脈性VT", "VF", "心停止"],
-      why: "脈が触れない頻拍では分類より蘇生対応が優先されます。",
-      next: "CPR、除細動器装着、救急チーム要請を並行して進めます。",
-      miss: "脈拍確認に時間をかけすぎないことが重要です。",
+      why: "脈が触れない頻拍では、分類より蘇生対応を優先する状況です。",
+      next: "CPR、AED/除細動器装着、救急チーム要請を並行して進めます。",
+      miss: "脈拍確認に時間をかけすぎず、蘇生の遅れを避けることが重要です。",
       action: ["CPRを開始", "AED/除細動器を装着", "救急・循環器チームを要請"],
       risk: "critical",
     };
@@ -135,7 +135,7 @@ function getDiagnosis(data: Data): Diagnosis {
     return {
       category: "Wide QRS + 不規則",
       candidates: ["AF with WPW", "多形性VT", "Torsades de Pointes"],
-      why: "Wide QRSかつ不規則な頻拍では致死的不整脈や副伝導路の関与を考えます。",
+      why: "Wide QRSかつ不規則な頻拍では、致死的不整脈や副伝導路の関与を考えます。",
       next: "12誘導心電図、QT、K/Mg、薬剤歴を確認します。",
       miss: "AF with WPWでは通常の房室結節抑制薬が危険になる場合があります。",
       action: ["緊急対応の準備", "電解質とQTを確認", "循環器へ緊急相談"],
@@ -147,9 +147,9 @@ function getDiagnosis(data: Data): Diagnosis {
     return {
       category: "Narrow QRS + 不規則",
       candidates: ["心房細動", "心房粗動（可変伝導）", "多源性心房頻拍"],
-      why: "狭QRSで不規則なら上室性頻拍を中心に考えます。",
+      why: "狭QRSで不規則なら上室性頻拍を中心に整理します。",
       next: "12誘導心電図でf波、flutter波、P波形のばらつきを確認します。",
-      miss: "不安定化、WPW合併、抗凝固の必要性を見落とさないことが重要です。",
+      miss: "不安定化、WPW合併、発症時期の確認を見落とさないことが重要です。",
       action: ["原因と持続時間を確認", "レートコントロールを検討", "血栓塞栓リスクを評価"],
       risk: "medium",
     };
@@ -164,7 +164,7 @@ function getDiagnosis(data: Data): Diagnosis {
       why: sinusFirst ? "P波と背景疾患があり、頻脈が代償反応の可能性があります。" : "狭QRSで規則的なら上室性頻拍を中心に整理します。",
       next: afl ? "150/分前後ならII・III・aVF・V1でflutter波を確認します。" : "P波の位置、RP間隔、発作性かどうかを確認します。",
       miss: "洞性頻脈では背景疾患の検索を優先します。",
-      action: sinusFirst ? ["背景疾患を評価", "原因治療を優先", "SVT所見があれば追加評価"] : ["迷走神経刺激を検討", "12誘導心電図を確認", "薬物治療は適応を確認"],
+      action: sinusFirst ? ["背景疾患を評価", "原因治療を優先", "SVT所見があれば追加評価"] : ["迷走神経刺激を検討", "12誘導心電図を確認", "薬物治療の適応を確認"],
       risk: "medium",
     };
   }
@@ -172,7 +172,7 @@ function getDiagnosis(data: Data): Diagnosis {
   return {
     category: "評価未完了",
     candidates: ["追加情報が必要"],
-    why: "QRS幅、規則性、12誘導所見が揃うと鑑別を整理できます。",
+    why: "血行動態、QRS幅、規則性、12誘導心電図所見がそろうと鑑別を整理できます。",
     next: "未入力の項目を順番に確認します。",
     miss: "血行動態不安定とWide QRSは先に確認します。",
     action: ["血行動態を確認", "QRS幅を確認", "規則性を確認"],
@@ -223,10 +223,9 @@ export default function Home() {
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
-      <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-4 pb-[calc(88px+env(safe-area-inset-bottom))] pt-[calc(16px+env(safe-area-inset-top))] sm:px-6 lg:pb-12">
-        <section className="hero-panel">
+      <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-4 pb-[calc(88px+env(safe-area-inset-bottom))] pt-[calc(12px+env(safe-area-inset-top))] sm:px-6 lg:pb-12">
+        <section className="hero-panel" aria-label="TachyScan Pro">
           <div className="hero-copy">
-            <p className="eyebrow">Dr. Ito Medical Apps</p>
             <h1>TachyScan Pro</h1>
             <p className="lead">血行動態・QRS幅・規則性から頻脈を整理します</p>
             <button
@@ -252,7 +251,7 @@ export default function Home() {
         )}
 
         {started && (
-          <section className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
+          <section className="mt-7 grid gap-7 lg:grid-cols-[minmax(0,1fr)_320px]">
             <div>
               <StepIntro step={step} />
               <div className="mt-5">{renderStep()}</div>
@@ -260,7 +259,7 @@ export default function Home() {
 
             <aside className="space-y-4">
               <div className="input-card">
-                <p className="section-label text-slate-600">入力サマリー</p>
+                <p className="section-label card-label">入力サマリー</p>
                 <dl className="summary-list">
                   <div><dt>HR</dt><dd>{data.heartRate || "未入力"} bpm</dd></div>
                   <div><dt>QRS</dt><dd>{data.qrsWidth === "wide" ? "Wide" : data.qrsWidth === "narrow" ? "Narrow" : "未選択"}</dd></div>
@@ -275,7 +274,7 @@ export default function Home() {
       </div>
 
       {started && (
-        <nav className="bottom-nav">
+        <nav className="bottom-nav" aria-label="ステップ操作">
           <button type="button" onClick={goBack} disabled={step === 0}>戻る</button>
           <button type="button" onClick={reset}>リセット</button>
           <button type="button" onClick={goNext} disabled={step === 5}>次へ</button>
@@ -319,34 +318,31 @@ export default function Home() {
     if (step === 1) {
       return (
         <div className="input-card">
-          <label className="field-title" htmlFor="heart-rate">心拍数</label>
-          <input
-            id="heart-rate"
-            inputMode="numeric"
-            min="0"
-            className="number-input"
-            value={data.heartRate}
-            onChange={(event) => updateData({ heartRate: event.target.value.replace(/\D/g, "") })}
-            placeholder="例: 150"
-          />
-          <p className="help-text">150/分前後の規則正しい頻拍では心房粗動2:1伝導を考えます。</p>
-        </div>
-      );
-    }
-
-    if (step === 2) {
-      return (
-        <div className="input-card">
-          <p className="field-title">QRS幅</p>
-          <div className="choice-grid">
-            <Choice selected={data.qrsWidth === "narrow"} onClick={() => updateData({ qrsWidth: "narrow" })}>Narrow QRS（120ms未満）</Choice>
-            <Choice selected={data.qrsWidth === "wide"} danger onClick={() => updateData({ qrsWidth: "wide" })}>Wide QRS（120ms以上）</Choice>
+          <div className="field-group">
+            <label className="field-title" htmlFor="heart-rate">心拍数</label>
+            <input
+              id="heart-rate"
+              inputMode="numeric"
+              min="0"
+              className="number-input"
+              value={data.heartRate}
+              onChange={(event) => updateData({ heartRate: event.target.value.replace(/\D/g, "") })}
+              placeholder="例: 150"
+            />
+            <p className="help-text">150/分前後の規則正しい頻拍では心房粗動2:1伝導を考えます。</p>
+          </div>
+          <div className="field-group">
+            <p className="field-title">QRS幅</p>
+            <div className="choice-grid">
+              <Choice selected={data.qrsWidth === "narrow"} onClick={() => updateData({ qrsWidth: "narrow" })}>Narrow QRS（120ms未満）</Choice>
+              <Choice selected={data.qrsWidth === "wide"} danger onClick={() => updateData({ qrsWidth: "wide" })}>Wide QRS（120ms以上）</Choice>
+            </div>
           </div>
         </div>
       );
     }
 
-    if (step === 3) {
+    if (step === 2) {
       return (
         <div className="input-card">
           <p className="field-title">規則性</p>
@@ -358,7 +354,7 @@ export default function Home() {
       );
     }
 
-    if (step === 4) {
+    if (step === 3) {
       return (
         <div className="input-card">
           <p className="field-title">12誘導心電図</p>
@@ -381,37 +377,38 @@ export default function Home() {
       );
     }
 
-    return (
-      <div className="space-y-5">
-        {hasWideQrsConcern(data) && (
-          <div className="input-card">
-            <p className="field-title">VT評価</p>
-            <div className="choice-grid">
-              {vtItems.map((item) => (
-                <Choice key={item.id} selected={!!data.vtFindings[item.id]} danger onClick={() => toggleRecord("vtFindings", item.id)}>
-                  {item.label}
-                </Choice>
-              ))}
-            </div>
-            <div className="mt-4 choice-grid">
-              <Choice selected={data.vtDuration === "nonSustained"} onClick={() => updateData({ vtDuration: "nonSustained" })}>30秒未満</Choice>
-              <Choice selected={data.vtDuration === "sustained"} danger onClick={() => updateData({ vtDuration: "sustained" })}>30秒以上</Choice>
-            </div>
-          </div>
-        )}
-        <Result diagnosis={diagnosis} data={data} />
-      </div>
-    );
+    if (step === 4) {
+      return (
+        <div className="input-card">
+          <p className="field-title">VT評価</p>
+          {hasWideQrsConcern(data) ? (
+            <>
+              <div className="choice-grid">
+                {vtItems.map((item) => (
+                  <Choice key={item.id} selected={!!data.vtFindings[item.id]} danger onClick={() => toggleRecord("vtFindings", item.id)}>
+                    {item.label}
+                  </Choice>
+                ))}
+              </div>
+              <div className="mt-4 choice-grid">
+                <Choice selected={data.vtDuration === "nonSustained"} onClick={() => updateData({ vtDuration: "nonSustained" })}>30秒未満</Choice>
+                <Choice selected={data.vtDuration === "sustained"} danger onClick={() => updateData({ vtDuration: "sustained" })}>30秒以上</Choice>
+              </div>
+            </>
+          ) : (
+            <p className="help-text no-margin">Wide QRSが選択された場合は、VTを示唆する所見をここで確認します。</p>
+          )}
+        </div>
+      );
+    }
+
+    return <Result diagnosis={diagnosis} data={data} />;
   }
 }
 
 function GuideCharacter({ message }: { message: string }) {
   return (
-    <div className="guide-wrap" aria-label="Guide Character">
-      <div className="guide-bubble">
-        <strong>Guide</strong>
-        <span>{message}</span>
-      </div>
+    <div className="guide-wrap" aria-label="診療ガイド">
       <Image
         src="/guide-character.png"
         alt="Dr. Ito Medical Apps Guide Character"
@@ -419,6 +416,10 @@ function GuideCharacter({ message }: { message: string }) {
         height={180}
         priority
       />
+      <div className="guide-bubble">
+        <strong>診療ガイド</strong>
+        <span>{message}</span>
+      </div>
     </div>
   );
 }
@@ -426,16 +427,16 @@ function GuideCharacter({ message }: { message: string }) {
 function StepIntro({ step }: { step: number }) {
   const titles = [
     ["Step 0", "血行動態", "血行動態が不安定なら、診断分類より初期対応を優先しましょう。"],
-    ["Step 1", "心拍数", "QRS幅を確認しましょう。WideかNarrowかで考え方が変わります。"],
-    ["Step 2", "QRS幅", "規則性を確認すると鑑別が絞れます。"],
-    ["Step 3", "規則性", "12誘導心電図でP波や房室関係を確認しましょう。"],
-    ["Step 4", "12誘導心電図", "Wide QRS頻拍ではVTも考慮し、臨床所見と合わせて評価しましょう。"],
-    ["Step 5", "初期対応", "診断結果は参考情報です。患者さん全体の情報と合わせて判断してください。"],
+    ["Step 1", "QRS幅", "QRS幅を確認しましょう。WideかNarrowかで考え方が変わります。"],
+    ["Step 2", "規則性", "規則性を確認すると鑑別が絞れます。"],
+    ["Step 3", "12誘導心電図", "12誘導心電図でP波や房室関係を確認しましょう。"],
+    ["Step 4", "VTの可能性", "Wide QRS頻拍ではVTも考慮し、臨床所見と合わせて評価しましょう。"],
+    ["Step 5", "診断結果", "診断結果は参考情報です。患者さん全体の情報と合わせて判断してください。"],
   ];
   const item = titles[step];
   return (
     <div className="step-intro">
-      <p>{item[0]}</p>
+      <p><span aria-hidden="true">●</span> {item[0]}</p>
       <h2>{item[1]}</h2>
       <span>{item[2]}</span>
     </div>
@@ -465,7 +466,7 @@ function Result({ diagnosis, data }: { diagnosis: Diagnosis; data: Data }) {
 
   return (
     <section className="result-card">
-      <p className="section-label text-slate-600">診断結果</p>
+      <p className="section-label card-label">診断結果</p>
       <h2>{diagnosis.category}</h2>
       <p className={`risk-pill ${diagnosis.risk}`}>{riskLabel}</p>
 
