@@ -48,12 +48,12 @@ const initialData: Data = {
 };
 
 const guideMessages = [
-  "血行動態が不安定なら診断分類より初期対応を優先します。",
-  "QRS幅を確認しましょう。",
-  "規則性を評価すると鑑別が絞れます。",
+  "血行動態が不安定なら、診断分類より初期対応を優先しましょう。",
+  "QRS幅を確認しましょう。WideかNarrowかで考え方が変わります。",
+  "規則性を確認すると鑑別が絞れます。",
   "12誘導心電図でP波や房室関係を確認しましょう。",
-  "VTを除外できるかが重要です。",
-  "初期対応を整理しました。臨床所見と合わせて判断してください。",
+  "Wide QRS頻拍ではVTも考慮し、臨床所見と合わせて評価しましょう。",
+  "診断結果は参考情報です。患者さん全体の情報と合わせて判断してください。",
 ];
 
 const hemodynamicItems = [
@@ -219,7 +219,7 @@ export default function Home() {
 
   const goNext = () => setStep((current) => Math.min(5, current + 1));
   const goBack = () => setStep((current) => Math.max(0, current - 1));
-  const currentMessage = started ? guideMessages[step] : "まず血行動態を確認しましょう。";
+  const currentMessage = started ? guideMessages[step] : "まず血行動態から確認しましょう。";
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
@@ -247,7 +247,7 @@ export default function Home() {
           <section className="red-flag-card" aria-live="polite">
             <p className="section-label">Red Flag</p>
             <h2>{redFlags.join(" / ")}</h2>
-            <p>診断分類より初期対応を優先してください。モニター、酸素、静脈路、除細動器、循環器相談を同時に準備します。</p>
+            <p>危険所見があります。早めに再評価し、必要なら緊急対応を検討してください。</p>
           </section>
         )}
 
@@ -425,12 +425,12 @@ function GuideCharacter({ message }: { message: string }) {
 
 function StepIntro({ step }: { step: number }) {
   const titles = [
-    ["Step 0", "血行動態", "不安定なら診断分類より初期対応を優先します。"],
-    ["Step 1", "心拍数", "頻拍の速さと臨床背景を合わせて見ます。"],
-    ["Step 2", "QRS幅", "Wide QRSかどうかを先に整理します。"],
-    ["Step 3", "規則性", "規則的か不規則かで鑑別が大きく変わります。"],
-    ["Step 4", "12誘導心電図", "P波、房室関係、背景疾患を確認します。"],
-    ["Step 5", "初期対応", "VTを除外できるかを意識して結果を整理します。"],
+    ["Step 0", "血行動態", "血行動態が不安定なら、診断分類より初期対応を優先しましょう。"],
+    ["Step 1", "心拍数", "QRS幅を確認しましょう。WideかNarrowかで考え方が変わります。"],
+    ["Step 2", "QRS幅", "規則性を確認すると鑑別が絞れます。"],
+    ["Step 3", "規則性", "12誘導心電図でP波や房室関係を確認しましょう。"],
+    ["Step 4", "12誘導心電図", "Wide QRS頻拍ではVTも考慮し、臨床所見と合わせて評価しましょう。"],
+    ["Step 5", "初期対応", "診断結果は参考情報です。患者さん全体の情報と合わせて判断してください。"],
   ];
   const item = titles[step];
   return (
@@ -509,6 +509,7 @@ function ClinicalPearl() {
   return (
     <section className="clinical-pearl">
       <p className="section-label">Clinical Pearl</p>
+      <p>判断に迷う場合は、見逃した場合のリスクが高い病態から優先して考えましょう。</p>
       <ul>{pearls.map((item) => <li key={item}>{item}</li>)}</ul>
     </section>
   );
