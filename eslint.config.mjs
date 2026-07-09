@@ -9,8 +9,14 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
+    "**/.next/**",
     "out/**",
+    "**/out/**",
     "build/**",
+    "**/build/**",
+    "diabetes-treatment-assistant/**",
+    "tachyscan-pro/**",
+    "tachyscan-pro-restore/**",
     "next-env.d.ts",
   ]),
 ]);

@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Dr. Ito Medical Hub",
-  description: "Dr. Ito の診療支援アプリをまとめたメディカルハブです。",
+  description: "Dr. Ito の診断支援アプリをまとめたメディカルダッシュボードです。",
 };
 
 export default function RootLayout({
