@@ -1,478 +1,515 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useMemo, useState } from "react";
 
-type Result = {
-  title: string;
+type Hemodynamics = {
+  hypotension?: boolean;
+  shock?: boolean;
+  chestPain?: boolean;
+  consciousness?: boolean;
+  heartFailure?: boolean;
+};
+
+type Data = {
+  pulse: "present" | "absent" | null;
+  hemodynamicsStable: boolean | null;
+  hemodynamics: Hemodynamics;
+  heartRate: string;
+  qrsWidth: "narrow" | "wide" | null;
+  rhythm: "regular" | "irregular" | null;
+  pWave: "present" | "absent" | "unclear" | null;
+  vtFindings: Record<string, boolean>;
+  vtDuration: "nonSustained" | "sustained" | null;
+  backgrounds: Record<string, boolean>;
+};
+
+type Diagnosis = {
   category: string;
-  difficulty: string;
-  impact: string;
-  reason: string;
-  nextStep: string;
-  noteTitle: string;
-  pv: string;
-  contribution: string;
-  monetization: string;
-  buildDifficulty: string;
-  scores: {
-    diabetes: number;
-    emergency: number;
-    neuro: number;
-    education: number;
-    research: number;
-  };
+  candidates: string[];
+  why: string;
+  next: string;
+  miss: string;
+  action: string[];
+  risk: "medium" | "high" | "critical";
 };
 
-type NoteItem = {
-  title: string;
-  link: string;
-  pubDate: string;
+const initialData: Data = {
+  pulse: null,
+  hemodynamicsStable: null,
+  hemodynamics: {},
+  heartRate: "",
+  qrsWidth: null,
+  rhythm: null,
+  pWave: null,
+  vtFindings: {},
+  vtDuration: null,
+  backgrounds: {},
 };
 
-const myApps = [
-  {
-    name: "糖尿病治療薬選択補助ツール",
-    category: "糖尿病",
-    url: "https://economic-med-script-flow.base44.app",
-    icon: "💊",
-  },
-  {
-    name: "酸塩基異常診断支援",
-    category: "救急",
-    url: "https://acid-base-diagnostic-assistant.vercel.app/",
-    icon: "🩸",
-  },
-  {
-    name: "甲状腺クリーゼ治療補助ツール",
-    category: "内分泌救急",
-    url: "https://thyro-score-flow.base44.app/",
-    icon: "🦋",
-  },
-  {
-    name: "電解質異常診断補助ツール",
-    category: "総合内科",
-    url: "https://ito-lab-calc.base44.app",
-    icon: "⚡",
-  },
-  {
-  name: "動悸・頻脈初期対応支援",
-  category: "救急",
-  url: "https://tachy-check-flow.base44.app",
-  icon: "❤️",
-},
-  {
-    name: "TachyScan Pro",
-    category: "救急",
-    url: "https://tachyscan-pro.vercel.app/",
-    icon: "❤️",
-  },
-  {
-    name: "神経診察診断補助ツール",
-    category: "神経",
-    url: "https://neuro-path-scan.base44.app",
-    icon: "🧠",
-  },
+const guideMessages = [
+  "血行動態が不安定なら診断分類より初期対応を優先します。",
+  "QRS幅を確認しましょう。",
+  "規則性を評価すると鑑別が絞れます。",
+  "12誘導心電図でP波や房室関係を確認しましょう。",
+  "VTを除外できるかが重要です。",
+  "初期対応を整理しました。臨床所見と合わせて判断してください。",
 ];
 
-export default function Home() {
-  const [apps, setApps] = useState(
-    "糖尿病治療薬選択補助ツール、酸塩基異常診断支援、甲状腺クリーゼ治療補助ツール、電解質異常診断補助ツール、神経診察診断補助ツール"
-  );
-  const [specialty, setSpecialty] = useState("糖尿病内科、総合内科");
-  const [goal, setGoal] = useState("教育、診療支援、Note発信");
-  const [result, setResult] = useState<Result | null>(null);
-  const [showApps, setShowApps] = useState(false);
-  const [showNotes, setShowNotes] = useState(false);
-  const [notes, setNotes] = useState<NoteItem[]>([]);
+const hemodynamicItems = [
+  { id: "hypotension", label: "血圧低下" },
+  { id: "shock", label: "ショック" },
+  { id: "chestPain", label: "胸痛" },
+  { id: "consciousness", label: "意識障害" },
+  { id: "heartFailure", label: "心不全" },
+] as const;
 
-  useEffect(() => {
-    fetch("/api/notes")
-      .then((res) => res.json())
-      .then((data) => setNotes(data))
-      .catch(() => setNotes([]));
-  }, []);
+const vtItems = [
+  { id: "avDissociation", label: "房室解離" },
+  { id: "captureBeat", label: "捕捉収縮" },
+  { id: "fusionBeat", label: "融合収縮" },
+  { id: "extremeAxis", label: "極端な軸偏位" },
+] as const;
 
-  function stars(score: number) {
-    return "★".repeat(score) + "☆".repeat(5 - score);
-  }
+const backgroundItems = [
+  { id: "fever", label: "発熱" },
+  { id: "sepsis", label: "敗血症" },
+  { id: "dehydration", label: "脱水" },
+  { id: "bleeding", label: "出血" },
+  { id: "dka", label: "DKA/HHS" },
+  { id: "pe", label: "肺塞栓" },
+  { id: "thyroid", label: "甲状腺中毒症" },
+  { id: "drugs", label: "薬剤・刺激物" },
+] as const;
 
-  function analyze() {
-    const text = `${apps} ${specialty} ${goal}`;
+function hasHemodynamicRedFlag(data: Data) {
+  return data.pulse === "absent" || Object.values(data.hemodynamics).some(Boolean);
+}
 
-    let recommendation: Result = {
-      title: "CGM解析AI",
-      category: "糖尿病・外来支援",
-      difficulty: "★★★☆☆",
-      impact: "★★★★★",
-      pv: "★★★★☆",
-      contribution: "★★★★★",
-      monetization: "★★★★☆",
-      buildDifficulty: "★★★☆☆",
-      reason:
-        "糖尿病専門医としての強みを最も活かしやすく、Note・講演・学会発表にも展開しやすいテーマです。",
-      nextStep:
-        "TIR、TAR、TBR、CV、平均血糖を入力し、評価コメントとカルテ記載例を返すVer1を作りましょう。",
-      noteTitle: "糖尿病専門医が作るCGM解析AI：血糖変動をどう読むか",
-      scores: { diabetes: 5, emergency: 3, neuro: 1, education: 4, research: 4 },
+function hasWideQrsConcern(data: Data) {
+  return data.qrsWidth === "wide";
+}
+
+function getDiagnosis(data: Data): Diagnosis {
+  const hr = Number.parseInt(data.heartRate, 10) || 0;
+  const hasBackground = Object.values(data.backgrounds).some(Boolean);
+  const vtCount = Object.values(data.vtFindings).filter(Boolean).length;
+
+  if (data.pulse === "absent") {
+    return {
+      category: "無脈性VT/VFを含む心停止対応",
+      candidates: ["無脈性VT", "VF", "心停止"],
+      why: "脈が触れない頻拍では分類より蘇生対応が優先されます。",
+      next: "CPR、除細動器装着、救急チーム要請を並行して進めます。",
+      miss: "脈拍確認に時間をかけすぎないことが重要です。",
+      action: ["CPRを開始", "AED/除細動器を装着", "救急・循環器チームを要請"],
+      risk: "critical",
     };
-
-    if (text.includes("血液ガス") || text.includes("DKA")) {
-      recommendation = {
-        title: "糖尿病救急統合ダッシュボード",
-        category: "救急・糖尿病",
-        difficulty: "★★★★☆",
-        impact: "★★★★★",
-        pv: "★★★★★",
-        contribution: "★★★★★",
-        monetization: "★★★☆☆",
-        buildDifficulty: "★★★★☆",
-        reason:
-          "血液ガス、DKA、電解質を統合すると、救急外来で実用性の高い代表作になります。",
-        nextStep:
-          "pH、HCO3、PaCO2、Na、血糖、ケトン体、浸透圧を一画面で評価できる構成にしましょう。",
-        noteTitle:
-          "その血ガス、正常に見えて危険かも：糖尿病救急をアプリで支援する",
-        scores: { diabetes: 5, emergency: 5, neuro: 2, education: 4, research: 3 },
-      };
-    }
-
-    if (text.includes("脳梗塞") || text.includes("神経")) {
-      recommendation = {
-        title: "神経診察・脳卒中初療支援ツール",
-        category: "神経・救急",
-        difficulty: "★★★★☆",
-        impact: "★★★★☆",
-        pv: "★★★★☆",
-        contribution: "★★★★★",
-        monetization: "★★★☆☆",
-        buildDifficulty: "★★★★☆",
-        reason:
-          "脳梗塞診断支援ツールを、眼球運動・構音障害・失語・麻痺の評価まで拡張できます。",
-        nextStep:
-          "突然発症、意識障害、失語、麻痺、眼球運動異常から病変部位を推定する画面を作りましょう。",
-        noteTitle: "脳梗塞を見逃さないための診察フローをアプリ化してみた",
-        scores: { diabetes: 3, emergency: 5, neuro: 5, education: 4, research: 3 },
-      };
-    }
-
-    if (text.includes("電解質") || text.includes("Na") || text.includes("K")) {
-      recommendation = {
-        title: "輸液・電解質補正プラン作成ツール",
-        category: "総合内科・救急",
-        difficulty: "★★★☆☆",
-        impact: "★★★★☆",
-        pv: "★★★★☆",
-        contribution: "★★★★☆",
-        monetization: "★★☆☆☆",
-        buildDifficulty: "★★★☆☆",
-        reason:
-          "電解質計算だけでなく、補正速度・輸液選択・注意点まで出せると臨床で使われやすくなります。",
-        nextStep:
-          "Na補正、K補正、自由水欠乏量、補正速度の警告表示を実装しましょう。",
-        noteTitle: "低Na血症・高K血症の計算をアプリで整理する",
-        scores: { diabetes: 3, emergency: 5, neuro: 2, education: 3, research: 2 },
-      };
-    }
-
-    if (text.includes("教育") || text.includes("Note") || text.includes("note")) {
-      recommendation = {
-        title: "医療者向け無料診療支援ツール集ポータル",
-        category: "教育・発信",
-        difficulty: "★★☆☆☆",
-        impact: "★★★★★",
-        pv: "★★★★★",
-        contribution: "★★★★☆",
-        monetization: "★★★☆☆",
-        buildDifficulty: "★★☆☆☆",
-        reason:
-          "すでに公開している複数アプリを一覧化すると、Noteからの回遊性と信頼性が上がります。",
-        nextStep:
-          "各アプリのカード、説明文、対象者、注意事項、リンクボタンを並べるポータルを作りましょう。",
-        noteTitle: "医師が自作した無料診療支援ツール集を公開します",
-        scores: { diabetes: 4, emergency: 4, neuro: 3, education: 5, research: 2 },
-      };
-    }
-
-    setResult(recommendation);
   }
+
+  if (Object.values(data.hemodynamics).some(Boolean)) {
+    return {
+      category: "血行動態不安定な頻脈",
+      candidates: ["不安定頻脈", "VTを含む重症頻脈"],
+      why: "血圧低下、ショック、胸痛、意識障害、心不全は緊急対応を要する所見です。",
+      next: "モニター、酸素、静脈路を確保し、同期カルディオバージョンを検討します。",
+      miss: "診断名の確定を待つと初期対応が遅れる可能性があります。",
+      action: ["モニター・酸素・静脈路を確保", "同期カルディオバージョンを検討", "循環器へ緊急相談"],
+      risk: "critical",
+    };
+  }
+
+  if (data.qrsWidth === "wide" && data.rhythm === "regular") {
+    return {
+      category: "Wide QRS + 規則的",
+      candidates: ["心室頻拍（VT）", "脚ブロックを伴うSVT", "WPW関連頻拍"],
+      why: vtCount > 0 ? "VTを示唆する所見があり、VTとして扱う必要性が高まります。" : "Wide QRS頻拍ではVTを最後まで除外しない姿勢が安全です。",
+      next: "12誘導心電図で房室解離、捕捉収縮、融合収縮、軸偏位を確認します。",
+      miss: "血行動態が保たれていてもVTは否定できません。",
+      action: data.vtDuration === "sustained" ? ["VTとして対応", "循環器へ緊急相談", "電気的治療を検討"] : ["VTとして評価継続", "電解質・心エコーを確認", "循環器相談を検討"],
+      risk: data.vtDuration === "sustained" ? "critical" : "high",
+    };
+  }
+
+  if (data.qrsWidth === "wide" && data.rhythm === "irregular") {
+    return {
+      category: "Wide QRS + 不規則",
+      candidates: ["AF with WPW", "多形性VT", "Torsades de Pointes"],
+      why: "Wide QRSかつ不規則な頻拍では致死的不整脈や副伝導路の関与を考えます。",
+      next: "12誘導心電図、QT、K/Mg、薬剤歴を確認します。",
+      miss: "AF with WPWでは通常の房室結節抑制薬が危険になる場合があります。",
+      action: ["緊急対応の準備", "電解質とQTを確認", "循環器へ緊急相談"],
+      risk: "critical",
+    };
+  }
+
+  if (data.qrsWidth === "narrow" && data.rhythm === "irregular") {
+    return {
+      category: "Narrow QRS + 不規則",
+      candidates: ["心房細動", "心房粗動（可変伝導）", "多源性心房頻拍"],
+      why: "狭QRSで不規則なら上室性頻拍を中心に考えます。",
+      next: "12誘導心電図でf波、flutter波、P波形のばらつきを確認します。",
+      miss: "不安定化、WPW合併、抗凝固の必要性を見落とさないことが重要です。",
+      action: ["原因と持続時間を確認", "レートコントロールを検討", "血栓塞栓リスクを評価"],
+      risk: "medium",
+    };
+  }
+
+  if (data.qrsWidth === "narrow" && data.rhythm === "regular") {
+    const afl = hr >= 140 && hr <= 160;
+    const sinusFirst = data.pWave === "present" && hasBackground;
+    return {
+      category: "Narrow QRS + 規則的",
+      candidates: sinusFirst ? ["洞性頻脈", "AVNRT", "AVRT", "心房粗動2:1伝導"] : ["AVNRT", "AVRT", "洞性頻脈", "心房粗動2:1伝導"],
+      why: sinusFirst ? "P波と背景疾患があり、頻脈が代償反応の可能性があります。" : "狭QRSで規則的なら上室性頻拍を中心に整理します。",
+      next: afl ? "150/分前後ならII・III・aVF・V1でflutter波を確認します。" : "P波の位置、RP間隔、発作性かどうかを確認します。",
+      miss: "洞性頻脈では背景疾患の検索を優先します。",
+      action: sinusFirst ? ["背景疾患を評価", "原因治療を優先", "SVT所見があれば追加評価"] : ["迷走神経刺激を検討", "12誘導心電図を確認", "薬物治療は適応を確認"],
+      risk: "medium",
+    };
+  }
+
+  return {
+    category: "評価未完了",
+    candidates: ["追加情報が必要"],
+    why: "QRS幅、規則性、12誘導所見が揃うと鑑別を整理できます。",
+    next: "未入力の項目を順番に確認します。",
+    miss: "血行動態不安定とWide QRSは先に確認します。",
+    action: ["血行動態を確認", "QRS幅を確認", "規則性を確認"],
+    risk: "medium",
+  };
+}
+
+export default function Home() {
+  const [started, setStarted] = useState(false);
+  const [step, setStep] = useState(0);
+  const [data, setData] = useState<Data>(initialData);
+
+  const diagnosis = useMemo(() => getDiagnosis(data), [data]);
+  const redFlags = useMemo(() => {
+    const items = [];
+    if (data.pulse === "absent") items.push("脈なし");
+    hemodynamicItems.forEach((item) => {
+      if (data.hemodynamics[item.id]) items.push(item.label);
+    });
+    if (data.qrsWidth === "wide") items.push("Wide QRS頻拍");
+    if (data.qrsWidth === "wide" && (data.rhythm || Object.values(data.vtFindings).some(Boolean))) items.push("VT疑い");
+    return items;
+  }, [data]);
+
+  const updateData = (updates: Partial<Data>) => setData((prev) => ({ ...prev, ...updates }));
+  const reset = () => {
+    setStep(0);
+    setData(initialData);
+    setStarted(false);
+  };
+
+  const toggleHemo = (id: keyof Hemodynamics) => {
+    updateData({
+      hemodynamicsStable: false,
+      hemodynamics: { ...data.hemodynamics, [id]: !data.hemodynamics[id] },
+    });
+  };
+
+  const toggleRecord = (field: "vtFindings" | "backgrounds", id: string) => {
+    updateData({
+      [field]: { ...data[field], [id]: !data[field][id] },
+    } as Partial<Data>);
+  };
+
+  const goNext = () => setStep((current) => Math.min(5, current + 1));
+  const goBack = () => setStep((current) => Math.max(0, current - 1));
+  const currentMessage = started ? guideMessages[step] : "まず血行動態を確認しましょう。";
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-cyan-950 p-6 text-slate-100">
-      <div className="mx-auto max-w-7xl">
-        <section className="mb-6 rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-xl">
-          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+    <main className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
+      <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-4 pb-[calc(88px+env(safe-area-inset-bottom))] pt-[calc(16px+env(safe-area-inset-top))] sm:px-6 lg:pb-12">
+        <section className="hero-panel">
+          <div className="hero-copy">
+            <p className="eyebrow">Dr. Ito Medical Apps</p>
+            <h1>TachyScan Pro</h1>
+            <p className="lead">血行動態・QRS幅・規則性から頻脈を整理します</p>
+            <button
+              type="button"
+              className="primary-action"
+              onClick={() => {
+                setStarted(true);
+                setStep(0);
+              }}
+            >
+              評価を開始
+            </button>
+          </div>
+          <GuideCharacter message={currentMessage} />
+        </section>
+
+        {redFlags.length > 0 && (
+          <section className="red-flag-card" aria-live="polite">
+            <p className="section-label">Red Flag</p>
+            <h2>{redFlags.join(" / ")}</h2>
+            <p>診断分類より初期対応を優先してください。モニター、酸素、静脈路、除細動器、循環器相談を同時に準備します。</p>
+          </section>
+        )}
+
+        {started && (
+          <section className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
             <div>
-              <div className="mb-4 inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-bold text-cyan-300">
-                Dr. Ito Medical Hub
+              <StepIntro step={step} />
+              <div className="mt-5">{renderStep()}</div>
+            </div>
+
+            <aside className="space-y-4">
+              <div className="input-card">
+                <p className="section-label text-slate-600">入力サマリー</p>
+                <dl className="summary-list">
+                  <div><dt>HR</dt><dd>{data.heartRate || "未入力"} bpm</dd></div>
+                  <div><dt>QRS</dt><dd>{data.qrsWidth === "wide" ? "Wide" : data.qrsWidth === "narrow" ? "Narrow" : "未選択"}</dd></div>
+                  <div><dt>規則性</dt><dd>{data.rhythm === "regular" ? "規則的" : data.rhythm === "irregular" ? "不規則" : "未選択"}</dd></div>
+                  <div><dt>P波</dt><dd>{data.pWave === "present" ? "あり" : data.pWave === "absent" ? "なし" : data.pWave === "unclear" ? "不明瞭" : "未選択"}</dd></div>
+                </dl>
               </div>
-
-              <h1 className="mb-3 bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-5xl font-extrabold tracking-tight text-transparent">
-                Dr. Ito Medical Hub
-              </h1>
-
-              <p className="max-w-3xl text-slate-300">
-                医療アプリ・Antaa Slide・Noteを統合した診療支援ポータル
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-slate-600 bg-slate-900 px-5 py-4 text-right">
-              <p className="text-xs text-slate-400">Developed by</p>
-              <p className="font-bold text-cyan-300">Dr. Ito</p>
-            </div>
-          </div>
-        </section>
-
-        <section className="grid gap-6 lg:grid-cols-[420px_1fr]">
-          <div className="space-y-6">
-            <div className="rounded-3xl border border-slate-700 bg-slate-800 p-6 shadow-xl">
-              <h2 className="mb-5 text-2xl font-bold text-white">入力</h2>
-
-              <div className="space-y-4">
-                <label className="block text-sm font-bold text-cyan-300">
-                  ① 作成済みアプリ
-                </label>
-                <p className="text-sm text-slate-400">
-                  これまで作成した医療アプリを入力してください。
-                </p>
-
-                <textarea
-                  className="min-h-36 w-full rounded-2xl border border-slate-600 bg-slate-900 p-4 text-slate-100 outline-none placeholder:text-slate-500 focus:border-cyan-400"
-                  value={apps}
-                  onChange={(e) => setApps(e.target.value)}
-                />
-
-                <label className="block text-sm font-bold text-cyan-300">
-                  ② 専門領域
-                </label>
-                <p className="text-sm text-slate-400">
-                  例：糖尿病内科、総合内科、内分泌内科
-                </p>
-
-                <input
-                  className="w-full rounded-2xl border border-slate-600 bg-slate-900 p-4 text-slate-100 outline-none placeholder:text-slate-500 focus:border-cyan-400"
-                  value={specialty}
-                  onChange={(e) => setSpecialty(e.target.value)}
-                />
-
-                <label className="block text-sm font-bold text-cyan-300">
-                  ③ 目標
-                </label>
-                <p className="text-sm text-slate-400">
-                  例：教育、診療支援、Note発信、研究、収益化
-                </p>
-
-                <input
-                  className="w-full rounded-2xl border border-slate-600 bg-slate-900 p-4 text-slate-100 outline-none placeholder:text-slate-500 focus:border-cyan-400"
-                  value={goal}
-                  onChange={(e) => setGoal(e.target.value)}
-                />
-
-                <button
-                  onClick={analyze}
-                  className="w-full rounded-2xl bg-cyan-400 px-5 py-4 font-bold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300"
-                >
-                  次に作るべきアプリを提案する
-                </button>
-              </div>
-            </div>
-
-            <div className="rounded-3xl border border-slate-700 bg-slate-900 p-5">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-xl font-bold text-white">保有アプリ一覧</h2>
-
-                <button
-                  onClick={() => setShowApps(!showApps)}
-                  className="rounded-full bg-cyan-400/10 px-3 py-1 text-sm font-bold text-cyan-300"
-                >
-                  {showApps ? "閉じる ▲" : "開く ▼"}
-                </button>
-              </div>
-
-              {showApps && (
-                <div className="space-y-3">
-                  {myApps.map((app) => (
-                    <a
-                      key={app.name}
-                      href={app.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block rounded-2xl border border-slate-700 bg-slate-800 p-4 transition hover:border-cyan-400 hover:bg-slate-700"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <p className="font-bold text-white">
-                            {app.icon} {app.name}
-                          </p>
-                          <p className="mt-1 text-sm text-slate-400">
-                            {app.category}
-                          </p>
-                        </div>
-                        <span className="text-sm text-cyan-300">開く →</span>
-                      </div>
-                    </a>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="rounded-3xl border border-slate-700 bg-slate-900 p-5">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-xl font-bold text-white">📝 最新Note記事</h2>
-
-                <button
-                  onClick={() => setShowNotes(!showNotes)}
-                  className="rounded-full bg-emerald-400/10 px-3 py-1 text-sm font-bold text-emerald-300"
-                >
-                  {showNotes ? "閉じる ▲" : "開く ▼"}
-                </button>
-              </div>
-
-              {showNotes && (
-                <div className="space-y-3">
-                  {notes.map((note) => (
-                    <a
-                      key={note.link}
-                      href={note.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block rounded-2xl border border-slate-700 bg-slate-800 p-4 transition hover:border-emerald-400 hover:bg-slate-700"
-                    >
-                      <p className="font-bold text-white">📝 {note.title}</p>
-                      <p className="mt-1 text-sm text-slate-400">
-                        {new Date(note.pubDate).toLocaleDateString("ja-JP")}
-                      </p>
-                    </a>
-                  ))}
-                </div>
-              )}
-            </div>
-           <div className="rounded-3xl border border-slate-700 bg-slate-900 p-5">
-  <h2 className="mb-4 text-xl font-bold text-white">
-    📊 Antaa Slide
-  </h2>
-
-  <a
-    href="https://slide.antaa.jp/profile/aEvSNVPlS4Cj"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="block rounded-2xl border border-fuchsia-400/30 bg-fuchsia-400/10 p-4 transition hover:bg-fuchsia-400/20"
-  >
-    <p className="font-bold text-white">
-      Dr.Ito Antaaプロフィール
-    </p>
-
-    <p className="mt-2 text-sm text-slate-300">
-      投稿したAntaa Slideを一覧表示
-    </p>
-
-    <p className="mt-2 text-fuchsia-300">
-      プロフィールを開く →
-    </p>
-  </a>
-</div> 
-          </div>
-
-          <div className="space-y-6">
-            {!result && (
-              <div className="rounded-3xl border border-dashed border-slate-600 bg-slate-800 p-8 text-slate-400">
-                入力後、「次に作るべきアプリを提案する」を押すとダッシュボードが表示されます。
-              </div>
-            )}
-
-            {result && (
-              <>
-                <div className="grid gap-4 md:grid-cols-5">
-                  {[
-                    ["糖尿病", result.scores.diabetes],
-                    ["救急", result.scores.emergency],
-                    ["神経", result.scores.neuro],
-                    ["教育", result.scores.education],
-                    ["研究", result.scores.research],
-                  ].map(([label, score]) => (
-                    <div
-                      key={label}
-                      className="rounded-2xl border border-cyan-400/30 bg-cyan-400/10 p-4"
-                    >
-                      <p className="text-sm text-cyan-200">{label}</p>
-                      <p className="mt-2 text-xl">{stars(score as number)}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="rounded-3xl border border-cyan-400/30 bg-slate-800 p-6 shadow-xl">
-                  <p className="mb-2 text-sm font-bold text-cyan-300">
-                    次の攻略先
-                  </p>
-                  <h2 className="text-4xl font-bold text-white">
-                    {result.title}
-                  </h2>
-                  <p className="mt-3 text-slate-300">{result.category}</p>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-4">
-                  <div className="rounded-3xl border border-cyan-400/30 bg-cyan-400/10 p-5">
-                    <p className="text-sm text-cyan-200">PV期待</p>
-                    <p className="mt-2 text-2xl">{result.pv}</p>
-                  </div>
-                  <div className="rounded-3xl border border-emerald-400/30 bg-emerald-400/10 p-5">
-                    <p className="text-sm text-emerald-200">医療貢献</p>
-                    <p className="mt-2 text-2xl">{result.contribution}</p>
-                  </div>
-                  <div className="rounded-3xl border border-fuchsia-400/30 bg-fuchsia-400/10 p-5">
-                    <p className="text-sm text-fuchsia-200">収益化</p>
-                    <p className="mt-2 text-2xl">{result.monetization}</p>
-                  </div>
-                  <div className="rounded-3xl border border-blue-400/30 bg-blue-400/10 p-5">
-                    <p className="text-sm text-blue-200">実装難易度</p>
-                    <p className="mt-2 text-2xl">{result.buildDifficulty}</p>
-                  </div>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="rounded-3xl border border-slate-600 bg-slate-800 p-6">
-                    <p className="text-sm font-bold text-cyan-300">戦略理由</p>
-                    <p className="mt-3 leading-relaxed text-slate-200">
-                      {result.reason}
-                    </p>
-                  </div>
-                  <div className="rounded-3xl border border-amber-400/30 bg-amber-400/10 p-6">
-                    <p className="text-sm font-bold text-amber-200">次の一手</p>
-                    <p className="mt-3 leading-relaxed text-slate-100">
-                      {result.nextStep}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="rounded-3xl border border-fuchsia-400/30 bg-fuchsia-400/10 p-6">
-                  <p className="text-sm font-bold text-fuchsia-200">Note記事案</p>
-                  <p className="mt-3 text-2xl font-bold text-white">
-                    {result.noteTitle}
-                  </p>
-                </div>
-              </>
-            )}
-          </div>
-        </section>
-
-        <footer className="mt-12 rounded-3xl border border-slate-700 bg-slate-900 p-6 text-sm text-slate-400">
-          <div className="space-y-3">
-            <p>
-              本ツールは教育・開発支援目的で提供されています。
-              実際の診療判断は各種ガイドラインおよび担当医の臨床判断に基づいて行ってください。
-            </p>
-            <p>
-              個人情報・患者識別情報（氏名、生年月日、ID等）は入力しないでください。
-            </p>
-            <div className="border-t border-slate-700 pt-3">
-              <p className="font-semibold text-cyan-300">Developed by Dr. Ito</p>
-              <p className="text-slate-500">Medical App Empire Dashboard</p>
-              <p className="text-slate-500">
-                Version 1.0.0 | Last Updated: 2026-06-04
-              </p>
-            </div>
-          </div>
-        </footer>
+              <ClinicalPearl />
+            </aside>
+          </section>
+        )}
       </div>
+
+      {started && (
+        <nav className="bottom-nav">
+          <button type="button" onClick={goBack} disabled={step === 0}>戻る</button>
+          <button type="button" onClick={reset}>リセット</button>
+          <button type="button" onClick={goNext} disabled={step === 5}>次へ</button>
+        </nav>
+      )}
     </main>
+  );
+
+  function renderStep() {
+    if (step === 0) {
+      return (
+        <div className="input-card">
+          <div className="field-group">
+            <p className="field-title">脈拍</p>
+            <div className="choice-grid">
+              <Choice selected={data.pulse === "present"} onClick={() => updateData({ pulse: "present" })}>脈あり</Choice>
+              <Choice selected={data.pulse === "absent"} danger onClick={() => updateData({ pulse: "absent" })}>脈なし</Choice>
+            </div>
+          </div>
+          <div className="field-group">
+            <p className="field-title">血行動態</p>
+            <button
+              type="button"
+              className={`choice full ${data.hemodynamicsStable ? "selected" : ""}`}
+              onClick={() => updateData({ hemodynamicsStable: true, hemodynamics: {} })}
+            >
+              血行動態は安定している
+            </button>
+            <div className="choice-grid">
+              {hemodynamicItems.map((item) => (
+                <Choice key={item.id} selected={!!data.hemodynamics[item.id]} danger onClick={() => toggleHemo(item.id)}>
+                  {item.label}
+                </Choice>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (step === 1) {
+      return (
+        <div className="input-card">
+          <label className="field-title" htmlFor="heart-rate">心拍数</label>
+          <input
+            id="heart-rate"
+            inputMode="numeric"
+            min="0"
+            className="number-input"
+            value={data.heartRate}
+            onChange={(event) => updateData({ heartRate: event.target.value.replace(/\D/g, "") })}
+            placeholder="例: 150"
+          />
+          <p className="help-text">150/分前後の規則正しい頻拍では心房粗動2:1伝導を考えます。</p>
+        </div>
+      );
+    }
+
+    if (step === 2) {
+      return (
+        <div className="input-card">
+          <p className="field-title">QRS幅</p>
+          <div className="choice-grid">
+            <Choice selected={data.qrsWidth === "narrow"} onClick={() => updateData({ qrsWidth: "narrow" })}>Narrow QRS（120ms未満）</Choice>
+            <Choice selected={data.qrsWidth === "wide"} danger onClick={() => updateData({ qrsWidth: "wide" })}>Wide QRS（120ms以上）</Choice>
+          </div>
+        </div>
+      );
+    }
+
+    if (step === 3) {
+      return (
+        <div className="input-card">
+          <p className="field-title">規則性</p>
+          <div className="choice-grid">
+            <Choice selected={data.rhythm === "regular"} onClick={() => updateData({ rhythm: "regular" })}>規則的</Choice>
+            <Choice selected={data.rhythm === "irregular"} onClick={() => updateData({ rhythm: "irregular" })}>不規則</Choice>
+          </div>
+        </div>
+      );
+    }
+
+    if (step === 4) {
+      return (
+        <div className="input-card">
+          <p className="field-title">12誘導心電図</p>
+          <div className="choice-grid">
+            <Choice selected={data.pWave === "present"} onClick={() => updateData({ pWave: "present" })}>P波あり</Choice>
+            <Choice selected={data.pWave === "absent"} onClick={() => updateData({ pWave: "absent" })}>P波なし</Choice>
+            <Choice selected={data.pWave === "unclear"} onClick={() => updateData({ pWave: "unclear" })}>不明瞭</Choice>
+          </div>
+          <div className="field-group">
+            <p className="field-title">背景疾患</p>
+            <div className="choice-grid">
+              {backgroundItems.map((item) => (
+                <Choice key={item.id} selected={!!data.backgrounds[item.id]} onClick={() => toggleRecord("backgrounds", item.id)}>
+                  {item.label}
+                </Choice>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-5">
+        {hasWideQrsConcern(data) && (
+          <div className="input-card">
+            <p className="field-title">VT評価</p>
+            <div className="choice-grid">
+              {vtItems.map((item) => (
+                <Choice key={item.id} selected={!!data.vtFindings[item.id]} danger onClick={() => toggleRecord("vtFindings", item.id)}>
+                  {item.label}
+                </Choice>
+              ))}
+            </div>
+            <div className="mt-4 choice-grid">
+              <Choice selected={data.vtDuration === "nonSustained"} onClick={() => updateData({ vtDuration: "nonSustained" })}>30秒未満</Choice>
+              <Choice selected={data.vtDuration === "sustained"} danger onClick={() => updateData({ vtDuration: "sustained" })}>30秒以上</Choice>
+            </div>
+          </div>
+        )}
+        <Result diagnosis={diagnosis} data={data} />
+      </div>
+    );
+  }
+}
+
+function GuideCharacter({ message }: { message: string }) {
+  return (
+    <div className="guide-wrap" aria-label="Guide Character">
+      <div className="guide-bubble">
+        <strong>Guide</strong>
+        <span>{message}</span>
+      </div>
+      <Image
+        src="/guide-character.png"
+        alt="Dr. Ito Medical Apps Guide Character"
+        width={180}
+        height={180}
+        priority
+      />
+    </div>
+  );
+}
+
+function StepIntro({ step }: { step: number }) {
+  const titles = [
+    ["Step 0", "血行動態", "不安定なら診断分類より初期対応を優先します。"],
+    ["Step 1", "心拍数", "頻拍の速さと臨床背景を合わせて見ます。"],
+    ["Step 2", "QRS幅", "Wide QRSかどうかを先に整理します。"],
+    ["Step 3", "規則性", "規則的か不規則かで鑑別が大きく変わります。"],
+    ["Step 4", "12誘導心電図", "P波、房室関係、背景疾患を確認します。"],
+    ["Step 5", "初期対応", "VTを除外できるかを意識して結果を整理します。"],
+  ];
+  const item = titles[step];
+  return (
+    <div className="step-intro">
+      <p>{item[0]}</p>
+      <h2>{item[1]}</h2>
+      <span>{item[2]}</span>
+    </div>
+  );
+}
+
+function Choice({
+  children,
+  selected,
+  danger,
+  onClick,
+}: {
+  children: React.ReactNode;
+  selected: boolean;
+  danger?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button type="button" className={`choice ${selected ? "selected" : ""} ${danger ? "danger" : ""}`} onClick={onClick}>
+      {children}
+    </button>
+  );
+}
+
+function Result({ diagnosis, data }: { diagnosis: Diagnosis; data: Data }) {
+  const riskLabel = diagnosis.risk === "critical" ? "緊急対応" : diagnosis.risk === "high" ? "高リスク" : "要評価";
+
+  return (
+    <section className="result-card">
+      <p className="section-label text-slate-600">診断結果</p>
+      <h2>{diagnosis.category}</h2>
+      <p className={`risk-pill ${diagnosis.risk}`}>{riskLabel}</p>
+
+      <div className="result-block">
+        <h3>考える候補</h3>
+        <ul>{diagnosis.candidates.map((item) => <li key={item}>{item}</li>)}</ul>
+      </div>
+      <div className="result-grid">
+        <div>
+          <h3>なぜ考えるか</h3>
+          <p>{diagnosis.why}</p>
+        </div>
+        <div>
+          <h3>次に確認すること</h3>
+          <p>{diagnosis.next}</p>
+        </div>
+        <div>
+          <h3>見逃しポイント</h3>
+          <p>{diagnosis.miss}</p>
+        </div>
+      </div>
+      <div className="result-block">
+        <h3>初期対応</h3>
+        <ul>{diagnosis.action.map((item) => <li key={item}>{item}</li>)}</ul>
+      </div>
+      {hasHemodynamicRedFlag(data) && (
+        <p className="result-note">血行動態不安定では、鑑別の精密化より蘇生・循環管理を優先します。</p>
+      )}
+    </section>
+  );
+}
+
+function ClinicalPearl() {
+  const pearls = [
+    "Wide QRS頻拍はVTとして扱うことを基本にする。",
+    "150/分前後の規則正しい頻拍では心房粗動2:1伝導を考える。",
+    "血行動態不安定なら診断分類より初期対応を優先する。",
+    "洞性頻脈では背景疾患を探す。",
+  ];
+
+  return (
+    <section className="clinical-pearl">
+      <p className="section-label">Clinical Pearl</p>
+      <ul>{pearls.map((item) => <li key={item}>{item}</li>)}</ul>
+    </section>
   );
 }
