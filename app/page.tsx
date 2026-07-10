@@ -7,6 +7,9 @@ type AppItem = {
   url: string;
   icon: string;
   subtitle?: string;
+  englishName?: string;
+  badges?: string[];
+  showExternalIndicator?: boolean;
   isNew?: boolean;
 };
 
@@ -27,6 +30,22 @@ const appCategories: AppCategory[] = [
         url: "https://fever-diagnostic-assistant.vercel.app/",
         icon: "🔥",
         isNew: true,
+      },
+    ],
+  },
+  {
+    title: "🦠 感染症",
+    description: "感染臓器と抗菌薬初期選択の整理",
+    apps: [
+      {
+        name: "感染症・抗菌薬初期選択支援",
+        englishName: "Infection & Antibiotic Navigator",
+        subtitle:
+          "感染臓器・耐性菌リスク・腎機能から、起因菌と抗菌薬候補を整理します。",
+        url: "https://infection-antibiotic-navigator.vercel.app/",
+        icon: "🦠",
+        badges: ["NEW", "BETA", "v0.9"],
+        showExternalIndicator: true,
       },
     ],
   },
@@ -115,6 +134,11 @@ const diagnosticTips = [
 ];
 
 const recentUpdates = [
+  {
+    title: "感染症・抗菌薬初期選択支援 v0.9 Beta 公開",
+    detail:
+      "起因菌推定、耐性菌リスク、腎機能評価、感染源コントロール、48〜72時間後の再評価に対応。",
+  },
   "発熱・CRP診断支援：Disease CardとMobile UIを改善",
   "酸塩基異常診断支援：病態推論とGuide Characterを改善",
   "甲状腺クリーゼ診断支援：Premium Designへ更新",
@@ -198,12 +222,23 @@ export default function Home() {
             Recent Updates
           </h2>
           <ul className="grid gap-3 text-sm leading-6 text-slate-300">
-            {recentUpdates.map((update) => (
-              <li key={update} className="flex gap-3">
-                <span className="mt-2 h-px w-8 shrink-0 bg-cyan-300/50" />
-                <span>{update}</span>
-              </li>
-            ))}
+            {recentUpdates.map((update) => {
+              const title = typeof update === "string" ? update : update.title;
+
+              return (
+                <li key={title} className="flex gap-3">
+                  <span className="mt-2 h-px w-8 shrink-0 bg-cyan-300/50" />
+                  <span className="min-w-0">
+                    <span>{title}</span>
+                    {typeof update === "string" ? null : (
+                      <span className="mt-1 block text-xs leading-5 text-slate-500">
+                        {update.detail}
+                      </span>
+                    )}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </section>
 
@@ -253,7 +288,20 @@ export default function Home() {
                                 NEW
                               </span>
                             ) : null}
+                            {app.badges?.map((badge) => (
+                              <span
+                                key={badge}
+                                className="rounded-full bg-cyan-100/80 px-2 py-0.5 text-[10px] font-black tracking-wide text-[#0F172A]"
+                              >
+                                {badge}
+                              </span>
+                            ))}
                           </div>
+                          {app.englishName ? (
+                            <p className="mt-1 break-words text-xs font-semibold leading-5 text-cyan-200/70">
+                              {app.englishName}
+                            </p>
+                          ) : null}
                           {app.subtitle ? (
                             <p className="mt-2 text-sm leading-6 text-slate-400">
                               {app.subtitle}
@@ -264,6 +312,9 @@ export default function Home() {
                           </p>
                           <p className="mt-4 inline-flex items-center gap-3 text-sm font-black text-cyan-200">
                             Launch
+                            {app.showExternalIndicator ? (
+                              <span aria-hidden="true">↗</span>
+                            ) : null}
                             <span className="h-px w-8 bg-cyan-200/60 transition group-hover:w-12" />
                           </p>
                         </div>
