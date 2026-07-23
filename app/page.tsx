@@ -74,7 +74,7 @@ export const apps: AppItem[] = [
     description: "感染臓器・耐性菌リスク・腎機能から抗菌薬候補を整理。",
     estimatedTime: "1分",
     badges: ["NEW", "BETA"],
-    tags: ["感染症", "抗菌薬", "腎機能", "耐性菌"],
+    tags: ["感染症", "抗菌薬", "腎機能", "耐性菌", "敗血症"],
   },
   {
     id: "fever-crp",
@@ -161,6 +161,37 @@ export const quickAccessIds = [
   "diabetes-treatment",
   "tachyscan",
   "neuro-localizer",
+  "thyroid-crisis",
+];
+
+export const quickActionLabels: Record<string, { title: string; icon: string }> = {
+  "infection-antibiotic": { title: "感染症支援", icon: "🦠" },
+  "fever-crp": { title: "発熱診断", icon: "🔥" },
+  "diabetes-treatment": { title: "糖尿病", icon: "🩸" },
+  tachyscan: { title: "TachyScan", icon: "⚡" },
+  "neuro-localizer": { title: "神経診察", icon: "🧠" },
+  "thyroid-crisis": { title: "甲状腺", icon: "🦋" },
+};
+
+export const popularTags = ["感染症", "発熱", "糖尿病", "敗血症", "神経"];
+
+export const todaysGuides = [
+  {
+    title: "敗血症を疑う場合は感染症支援をご利用ください",
+    appId: "infection-antibiotic",
+  },
+  {
+    title: "発熱とCRP高値では発熱診断から整理できます",
+    appId: "fever-crp",
+  },
+  {
+    title: "頻脈で迷う場合はTachyScanを先に開いてください",
+    appId: "tachyscan",
+  },
+  {
+    title: "神経所見が主役なら神経診察から局在を確認できます",
+    appId: "neuro-localizer",
+  },
 ];
 
 export const clinicalPearls: ClinicalPearl[] = [
@@ -245,6 +276,24 @@ export function pickClinicalPearl(
     Math.floor(randomValue * pearlData.length),
   );
   return pearlData[index];
+}
+
+export function pickTodaysGuide(
+  guideData = todaysGuides,
+  randomValue = Math.random(),
+) {
+  if (guideData.length === 0) {
+    return {
+      title: "必要な診療支援ツールをQuick Actionsから選択してください",
+      appId: "infection-antibiotic",
+    };
+  }
+
+  const index = Math.min(
+    guideData.length - 1,
+    Math.floor(randomValue * guideData.length),
+  );
+  return guideData[index];
 }
 
 function getAppById(id: string) {
@@ -385,10 +434,10 @@ function MedicalBottomNavigation() {
       className="fixed inset-x-2 bottom-2 z-20 mx-auto grid max-w-md grid-cols-4 rounded-2xl border border-cyan-100/10 bg-slate-950/90 p-1 text-[11px] font-black text-slate-300 shadow-[0_16px_60px_rgba(0,0,0,0.42)] backdrop-blur-xl sm:hidden"
     >
       {[
-        ["#quick-access", "Quick"],
-        ["#recent", "Recent"],
-        ["#favorites", "Fav"],
-        ["#apps", "Apps"],
+        ["#home", "🏠 Home"],
+        ["#favorites", "⭐ Favorites"],
+        ["#recent", "🕒 Recent"],
+        ["#settings", "⚙ Settings"],
       ].map(([href, label]) => (
         <a
           key={href}
@@ -416,7 +465,7 @@ const AppCard = memo(function AppCard({
   usedAt?: number;
 }) {
   return (
-    <MedicalCard className="group relative min-h-[104px] p-3 transition hover:-translate-y-0.5 hover:border-cyan-200/35 hover:bg-cyan-950/25">
+    <MedicalCard className="group relative min-h-[88px] p-2.5 transition hover:-translate-y-0.5 hover:border-cyan-200/35 hover:bg-cyan-950/25">
       <button
         type="button"
         aria-label={`${app.title}をFavorite${isFavorite ? "から解除" : "に追加"}`}
@@ -435,23 +484,25 @@ const AppCard = memo(function AppCard({
         onClick={() => onLaunch(app.id)}
         className="block pr-9 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
       >
-        <div className="flex min-w-0 gap-2.5">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-cyan-200/20 bg-cyan-300/10 text-lg">
+        <div className="flex min-w-0 gap-2">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-cyan-200/20 bg-cyan-300/10 text-base">
             {app.icon}
           </span>
           <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-1">
-              <h3 className="line-clamp-1 text-xs font-black leading-5 text-white sm:text-sm">
+            <div className="flex min-w-0 items-center gap-1">
+              <h3 className="min-w-0 flex-1 truncate text-xs font-black leading-5 text-white sm:text-sm">
                 {app.title}
               </h3>
-              {app.badges.map((badge) => (
-                <MedicalBadge key={badge}>{badge}</MedicalBadge>
-              ))}
+              <span className="shrink-0">
+                {app.badges.slice(0, 1).map((badge) => (
+                  <MedicalBadge key={badge}>{badge}</MedicalBadge>
+                ))}
+              </span>
             </div>
-            <p className="mt-1 line-clamp-2 text-[11px] font-semibold leading-4 text-slate-400">
+            <p className="mt-0.5 line-clamp-1 text-[11px] font-semibold leading-4 text-slate-400">
               {app.description}
             </p>
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] font-black text-cyan-200">
+            <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[11px] font-black text-cyan-200">
               <span>{app.estimatedTime}</span>
               {usedAt ? (
                 <span className="text-slate-500">{formatUsedAt(usedAt)}</span>
@@ -465,32 +516,63 @@ const AppCard = memo(function AppCard({
   );
 });
 
-const QuickAccessCard = memo(function QuickAccessCard({
+const QuickActionCard = memo(function QuickActionCard({
   app,
   onLaunch,
 }: {
   app: AppItem;
   onLaunch: (appId: string) => void;
 }) {
+  const quickLabel = quickActionLabels[app.id] ?? {
+    title: app.title,
+    icon: app.icon,
+  };
+
   return (
-    <MedicalCard className="min-h-[76px] p-2 transition hover:border-cyan-200/35 hover:bg-cyan-950/25 sm:min-h-[88px]">
+    <MedicalCard className="min-h-[72px] p-2 transition hover:border-cyan-200/35 hover:bg-cyan-950/25">
       <a
         href={app.url}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label={`${app.title}をQuick Accessから開く`}
+        aria-label={`${quickLabel.title}をQuick Actionsから開く`}
         onClick={() => onLaunch(app.id)}
-        className="grid h-full min-h-14 content-between focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
+        className="grid h-full min-h-14 grid-cols-[auto_minmax(0,1fr)] items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
       >
-        <div className="flex items-center justify-between gap-1">
-          <span className="text-lg">{app.icon}</span>
-          <MedicalBadge>{app.estimatedTime}</MedicalBadge>
-        </div>
-        <p className="line-clamp-2 text-[11px] font-black leading-4 text-white sm:text-xs">
-          {app.title}
+        <span className="grid h-11 w-11 place-items-center rounded-xl border border-cyan-200/20 bg-cyan-300/10 text-lg">
+          {quickLabel.icon}
+        </span>
+        <p className="line-clamp-2 text-xs font-black leading-4 text-white">
+          {quickLabel.title}
         </p>
       </a>
     </MedicalCard>
+  );
+});
+
+const RecentListItem = memo(function RecentListItem({
+  app,
+  usedAt,
+  onLaunch,
+}: {
+  app: AppItem;
+  usedAt: number;
+  onLaunch: (appId: string) => void;
+}) {
+  return (
+    <a
+      href={app.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`${app.title}をRecentから開く`}
+      onClick={() => onLaunch(app.id)}
+      className="grid min-h-11 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-xl border border-cyan-100/10 bg-slate-950/35 px-2.5 py-2 transition hover:border-cyan-200/35 hover:bg-cyan-950/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
+    >
+      <span className="text-base">{app.icon}</span>
+      <span className="truncate text-xs font-black text-white">{app.title}</span>
+      <span className="text-[10px] font-bold text-slate-500">
+        {formatUsedAt(usedAt)}
+      </span>
+    </a>
   );
 });
 
@@ -501,6 +583,7 @@ export default function Home() {
   const [launchCounts, setLaunchCounts] = useState<Record<string, number>>({});
   const [storageReady, setStorageReady] = useState(false);
   const [pearl, setPearl] = useState<ClinicalPearl>(clinicalPearls[0]);
+  const [todaysGuide, setTodaysGuide] = useState(todaysGuides[0]);
 
   useEffect(() => {
     const frameId = window.requestAnimationFrame(() => {
@@ -520,6 +603,7 @@ export default function Home() {
         ),
       );
       setPearl(pickClinicalPearl());
+      setTodaysGuide(pickTodaysGuide());
       setStorageReady(true);
     });
 
@@ -541,22 +625,25 @@ export default function Home() {
         .filter(
           (item): item is { app: AppItem; usedAt: number } => Boolean(item),
         )
-        .slice(0, 5),
+        .slice(0, 3),
     [recent],
   );
 
-  const quickAccessApps = useMemo(
-    () =>
-      quickAccessIds
-        .map(getAppById)
-        .filter(isAppItem)
-        .sort(
-          (a, b) =>
-            (launchCounts[b.id] ?? 0) - (launchCounts[a.id] ?? 0) ||
-            quickAccessIds.indexOf(a.id) - quickAccessIds.indexOf(b.id),
-        ),
-    [launchCounts],
-  );
+  const quickActionApps = useMemo(() => {
+    const favoriteSet = new Set(favorites);
+    const favoriteQuickApps = favorites.map(getAppById).filter(isAppItem);
+    const defaultQuickApps = quickAccessIds
+      .filter((id) => !favoriteSet.has(id))
+      .map(getAppById)
+      .filter(isAppItem)
+      .sort(
+        (a, b) =>
+          (launchCounts[b.id] ?? 0) - (launchCounts[a.id] ?? 0) ||
+          quickAccessIds.indexOf(a.id) - quickAccessIds.indexOf(b.id),
+      );
+
+    return [...favoriteQuickApps, ...defaultQuickApps].slice(0, 6);
+  }, [favorites, launchCounts]);
 
   const filteredApps = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -587,7 +674,7 @@ export default function Home() {
       const next = [
         { id: appId, usedAt },
         ...current.filter((item) => item.id !== appId),
-      ].slice(0, 5);
+      ].slice(0, 3);
       safeSetLocalStorageItem(RECENT_KEY, JSON.stringify(next));
       return next;
     });
@@ -601,7 +688,10 @@ export default function Home() {
 
   return (
     <MedicalPage>
-      <section className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-2xl border border-cyan-100/10 bg-slate-950/50 p-2.5 shadow-[0_14px_48px_rgba(0,0,0,0.22)] sm:p-3">
+      <section
+        id="home"
+        className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-2xl border border-cyan-100/10 bg-slate-950/50 p-2.5 shadow-[0_14px_48px_rgba(0,0,0,0.22)] sm:p-3"
+      >
         <Image
           src="/guide-character.png"
           alt=""
@@ -625,13 +715,24 @@ export default function Home() {
       </section>
 
       <section
+        id="quick-actions"
+        aria-label="Quick Actions"
+        className="grid gap-2 scroll-mt-4"
+      >
+        <MedicalSectionHeader title="Quick Actions" description="Tap to launch" />
+        <div className="grid grid-cols-2 gap-2">
+          {quickActionApps.map((app) => (
+            <QuickActionCard key={app.id} app={app} onLaunch={recordLaunch} />
+          ))}
+        </div>
+      </section>
+
+      <section
         aria-label="Dashboard"
-        className="-mx-2.5 flex gap-2 overflow-x-auto px-2.5 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-6 sm:overflow-visible sm:px-0"
+        className="-mx-2.5 flex gap-2 overflow-x-auto px-2.5 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-4 sm:overflow-visible sm:px-0"
       >
         {[
           ["Apps", apps.length.toString()],
-          ["Favorites", favoriteApps.length.toString()],
-          ["Recent", recentApps.length.toString()],
           ["Updates", "4"],
           ["Version", VERSION],
           ["Online", "●"],
@@ -648,38 +749,32 @@ export default function Home() {
         ))}
       </section>
 
-      <section
-        id="quick-access"
-        aria-label="Quick Launch apps"
-        className="grid gap-2 scroll-mt-4"
-      >
-        <MedicalSectionHeader title="Quick Access" description="Frequency ready" />
-        <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
-          {quickAccessApps.map((app) => (
-            <QuickAccessCard key={app.id} app={app} onLaunch={recordLaunch} />
-          ))}
-        </div>
-      </section>
+      <MedicalCard className="p-3">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-300/80">
+          Today&apos;s Guide
+        </p>
+        <p className="mt-1 text-xs font-semibold leading-5 text-slate-300">
+          {todaysGuide.title}
+        </p>
+      </MedicalCard>
 
       <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <section id="recent" className="grid gap-2 scroll-mt-4">
-          <MedicalSectionHeader title="Recent" description="Last 5" />
+          <MedicalSectionHeader title="Recent" description="Last 3" />
           {storageReady ? (
             recentApps.length > 0 ? (
-              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
-                {recentApps.slice(0, 2).map(({ app, usedAt }) => (
-                  <AppCard
+              <div className="grid gap-1.5">
+                {recentApps.map(({ app, usedAt }) => (
+                  <RecentListItem
                     key={`${app.id}-${usedAt}`}
                     app={app}
                     usedAt={usedAt}
-                    isFavorite={favorites.includes(app.id)}
-                    onToggleFavorite={toggleFavorite}
                     onLaunch={recordLaunch}
                   />
                 ))}
               </div>
             ) : (
-              <MedicalEmptyState>起動したアプリがここに5件まで保存されます。</MedicalEmptyState>
+              <MedicalEmptyState>起動したアプリがここに3件まで保存されます。</MedicalEmptyState>
             )
           ) : (
             <MedicalSkeleton />
@@ -711,6 +806,21 @@ export default function Home() {
           <MedicalSectionHeader title="Applications" description="Compact catalog" />
           <MedicalSearchInput value={query} onChange={setQuery} />
         </div>
+
+        {query.trim() ? null : (
+          <div className="flex flex-wrap gap-1.5" aria-label="よく使うタグ">
+            {popularTags.map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => setQuery(tag)}
+                className="inline-flex min-h-11 items-center rounded-xl border border-cyan-100/10 bg-slate-950/42 px-3 text-xs font-black text-cyan-100 transition hover:border-cyan-200/35 hover:bg-cyan-950/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-200"
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        )}
 
         {filteredApps.length > 0 ? (
           <div className="grid gap-3">
@@ -750,13 +860,11 @@ export default function Home() {
       </section>
 
       <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <MedicalCard className="p-3">
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-300/80">
-              Clinical Pearl
-            </p>
+        <details className="rounded-2xl border border-cyan-100/10 bg-slate-950/42 p-3 shadow-[0_14px_44px_rgba(0,0,0,0.18)] backdrop-blur-sm">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 text-xs font-black text-cyan-300/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-200">
+            Clinical Pearl
             <MedicalBadge>{pearl.category}</MedicalBadge>
-          </div>
+          </summary>
           <h2 className="mt-2 text-sm font-black text-white">{pearl.title}</h2>
           <p className="mt-1 text-xs font-semibold leading-5 text-slate-400">
             {pearl.body}
@@ -764,7 +872,7 @@ export default function Home() {
           <p className="mt-2 text-[10px] font-bold text-slate-500">
             {pearl.tags.join(" / ")}
           </p>
-        </MedicalCard>
+        </details>
 
         <section className="grid gap-2" aria-label="Release Notes">
           <MedicalSectionHeader title="Release Notes" />
@@ -780,7 +888,7 @@ export default function Home() {
         </section>
       </div>
 
-      <section id="links" className="grid gap-2 scroll-mt-4">
+      <section id="settings" className="grid gap-2 scroll-mt-4">
         <MedicalSectionHeader title="Links" />
         <MedicalCard className="grid divide-y divide-cyan-100/10 sm:grid-cols-4 sm:divide-x sm:divide-y-0">
           {[

@@ -7,6 +7,8 @@ import Home, {
   apps,
   clinicalPearls,
   pickClinicalPearl,
+  pickTodaysGuide,
+  popularTags,
   releaseNotes,
   safeParse,
 } from "./page";
@@ -24,6 +26,12 @@ function appsSection() {
 function dashboardSection() {
   const section = screen.getByLabelText("Dashboard");
   return section;
+}
+
+function favoritesSection() {
+  const section = document.querySelector("#favorites");
+  if (!section) throw new Error("Favorites section not found");
+  return within(section as HTMLElement);
 }
 
 function clickAppLaunch(appTitle: string) {
@@ -49,7 +57,7 @@ describe("Medical AI Console v3", () => {
 
     expect(await screen.findByText("Medical AI Console")).toBeInTheDocument();
     expect(screen.getByLabelText("Dashboard")).toBeInTheDocument();
-    expect(screen.getByText("Quick Access")).toBeInTheDocument();
+    expect(screen.getByText("Quick Actions")).toBeInTheDocument();
     expect(screen.getByText("Applications")).toBeInTheDocument();
     expect(appsSection().getByText("感染症・抗菌薬初期選択支援")).toBeInTheDocument();
   });
@@ -111,7 +119,7 @@ describe("Medical AI Console v3", () => {
     expect(JSON.parse(window.localStorage.getItem(FAVORITES_KEY) ?? "[]")).toEqual([
       "fever-crp",
     ]);
-    expect(dashboardSection()).toHaveTextContent("Favorites1");
+    expect(favoritesSection().getByText("発熱・CRP診断支援")).toBeInTheDocument();
 
     fireEvent.click(
       appsSection().getByRole("button", {
@@ -120,7 +128,9 @@ describe("Medical AI Console v3", () => {
     );
 
     expect(JSON.parse(window.localStorage.getItem(FAVORITES_KEY) ?? "[]")).toEqual([]);
-    expect(dashboardSection()).toHaveTextContent("Favorites0");
+    expect(
+      favoritesSection().getByText("各アプリ右上の★で診療開始セットに登録できます。"),
+    ).toBeInTheDocument();
   });
 
   it("adds launched apps to Recent with timestamp data", async () => {
@@ -162,36 +172,40 @@ describe("Medical AI Console v3", () => {
     ].forEach(clickAppLaunch);
 
     const recent = JSON.parse(window.localStorage.getItem(RECENT_KEY) ?? "[]");
-    expect(recent).toHaveLength(5);
+    expect(recent).toHaveLength(3);
     expect(recent[0].id).toBe("acid-base");
     expect(recent.map((item: { id: string }) => item.id)).not.toContain(
       "infection-antibiotic",
     );
+    expect(recent.map((item: { id: string }) => item.id)).not.toContain(
+      "fever-crp",
+    );
   });
 
-  it("renders Quick Access apps with correct launch links", async () => {
+  it("renders Quick Actions apps with correct launch links", async () => {
     renderConsole();
-    const quick = within(await screen.findByLabelText("Quick Launch apps"));
+    const quick = within(await screen.findByLabelText("Quick Actions"));
 
-    expect(quick.getByText("感染症・抗菌薬初期選択支援")).toBeInTheDocument();
-    expect(quick.getByText("発熱・CRP診断支援")).toBeInTheDocument();
-    expect(quick.getByText("糖尿病治療薬選択支援")).toBeInTheDocument();
-    expect(quick.getByText("頻脈初期対応支援")).toBeInTheDocument();
-    expect(quick.getByText("神経局在診断支援")).toBeInTheDocument();
+    expect(quick.getByText("感染症支援")).toBeInTheDocument();
+    expect(quick.getByText("発熱診断")).toBeInTheDocument();
+    expect(quick.getByText("糖尿病")).toBeInTheDocument();
+    expect(quick.getByText("TachyScan")).toBeInTheDocument();
+    expect(quick.getByText("神経診察")).toBeInTheDocument();
+    expect(quick.getByText("甲状腺")).toBeInTheDocument();
     expect(
       quick.getByRole("link", {
-        name: "発熱・CRP診断支援をQuick Accessから開く",
+        name: "発熱診断をQuick Actionsから開く",
       }),
     ).toHaveAttribute("href", "https://fever-diagnostic-assistant.vercel.app/");
   });
 
-  it("updates Recent when launching from Quick Access", async () => {
+  it("updates Recent when launching from Quick Actions", async () => {
     renderConsole();
-    const quick = within(await screen.findByLabelText("Quick Launch apps"));
+    const quick = within(await screen.findByLabelText("Quick Actions"));
 
     fireEvent.click(
       quick.getByRole("link", {
-        name: "発熱・CRP診断支援をQuick Accessから開く",
+        name: "発熱診断をQuick Actionsから開く",
       }),
     );
 
@@ -199,20 +213,37 @@ describe("Medical AI Console v3", () => {
     expect(recent[0].id).toBe("fever-crp");
   });
 
-  it("renders six Dashboard widgets with the real app count and online state", async () => {
+  it("places favorite apps at the top of Quick Actions", async () => {
+    renderConsole();
+    const favoriteButton = await appsSection().findByRole("button", {
+      name: "甲状腺クリーゼ診断支援をFavoriteに追加",
+    });
+
+    fireEvent.click(favoriteButton);
+
+    const quickLinks = within(screen.getByLabelText("Quick Actions")).getAllByRole(
+      "link",
+    );
+    expect(quickLinks[0]).toHaveAccessibleName("甲状腺をQuick Actionsから開く");
+  });
+
+  it("renders four Dashboard widgets with the real app count and online state", async () => {
     renderConsole();
     const dashboard = dashboardSection();
 
-    expect(dashboard.children).toHaveLength(6);
+    expect(dashboard.children).toHaveLength(4);
     expect(dashboard).toHaveTextContent(`Apps${apps.length}`);
-    expect(dashboard).toHaveTextContent("Favorites0");
+    expect(dashboard).not.toHaveTextContent("Favorites");
+    expect(dashboard).not.toHaveTextContent("Recent");
     expect(dashboard).toHaveTextContent("Online●");
   });
 
   it("renders Clinical Pearl from JSON-shaped data", async () => {
     renderConsole();
 
-    expect(await screen.findByText(clinicalPearls[0].title)).toBeInTheDocument();
+    const pearlToggle = await screen.findByText("Clinical Pearl");
+    expect(pearlToggle.closest("details")).not.toHaveAttribute("open");
+    expect(screen.getByText(clinicalPearls[0].title)).toBeInTheDocument();
     expect(screen.getByText(clinicalPearls[0].body)).toBeInTheDocument();
     expect(screen.getByText(clinicalPearls[0].category)).toBeInTheDocument();
     expect(screen.getByText(clinicalPearls[0].tags.join(" / "))).toBeInTheDocument();
@@ -237,6 +268,27 @@ describe("Medical AI Console v3", () => {
     expect(release.getByText(releaseNotes.changes)).toBeInTheDocument();
   });
 
+  it("renders Today's Guide from structured data", async () => {
+    renderConsole();
+
+    expect(await screen.findByText("Today's Guide")).toBeInTheDocument();
+    expect(screen.getByText(pickTodaysGuide().title)).toBeInTheDocument();
+  });
+
+  it("shows popular tags before searching and applies a tag query", async () => {
+    renderConsole();
+
+    const tagRegion = await screen.findByLabelText("よく使うタグ");
+    for (const tag of popularTags) {
+      expect(within(tagRegion).getByRole("button", { name: tag })).toBeInTheDocument();
+    }
+
+    fireEvent.click(within(tagRegion).getByRole("button", { name: "敗血症" }));
+
+    expect(appsSection().getByText("感染症・抗菌薬初期選択支援")).toBeInTheDocument();
+    expect(screen.queryByLabelText("よく使うタグ")).not.toBeInTheDocument();
+  });
+
   it("survives invalid JSON in localStorage", async () => {
     window.localStorage.setItem(FAVORITES_KEY, "{broken");
     window.localStorage.setItem(RECENT_KEY, "{broken");
@@ -245,8 +297,10 @@ describe("Medical AI Console v3", () => {
     renderConsole();
 
     expect(await screen.findByText("Medical AI Console")).toBeInTheDocument();
-    expect(dashboardSection()).toHaveTextContent("Favorites0");
-    expect(dashboardSection()).toHaveTextContent("Recent0");
+    expect(dashboardSection()).not.toHaveTextContent("Favorites");
+    expect(
+      await screen.findByText("起動したアプリがここに3件まで保存されます。"),
+    ).toBeInTheDocument();
   });
 
   it("renders and handles interactions when localStorage methods throw", async () => {
@@ -266,7 +320,7 @@ describe("Medical AI Console v3", () => {
       }),
     );
 
-    expect(dashboardSection()).toHaveTextContent("Favorites1");
+    expect(favoritesSection().getByText("発熱・CRP診断支援")).toBeInTheDocument();
   });
 
   it("renders normally on first access with empty localStorage", async () => {
@@ -274,11 +328,12 @@ describe("Medical AI Console v3", () => {
 
     expect(await screen.findByText("Medical AI Console")).toBeInTheDocument();
     expect(
-      await screen.findByText("起動したアプリがここに5件まで保存されます。"),
+      await screen.findByText("起動したアプリがここに3件まで保存されます。"),
     ).toBeInTheDocument();
     expect(
       screen.getByText("各アプリ右上の★で診療開始セットに登録できます。"),
     ).toBeInTheDocument();
+    expect(screen.getByText("Quick Actions")).toBeInTheDocument();
   });
 
   it("provides accessible search, favorite, and launch controls", async () => {
@@ -310,7 +365,9 @@ describe("Medical AI Console v3", () => {
     fireEvent.keyDown(favoriteButton, { key: "Enter", code: "Enter" });
     fireEvent.click(favoriteButton);
 
-    await waitFor(() => expect(dashboardSection()).toHaveTextContent("Favorites1"));
+    await waitFor(() =>
+      expect(favoritesSection().getByText("発熱・CRP診断支援")).toBeInTheDocument(),
+    );
   });
 
   it("safeParse returns fallback for malformed values", () => {
