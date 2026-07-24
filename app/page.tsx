@@ -17,7 +17,8 @@ type AppCategoryName =
   | "内分泌"
   | "神経"
   | "循環器"
-  | "内科総合";
+  | "内科総合"
+  | "総合診療";
 
 type BadgeStatus = "NEW" | "BETA" | "Stable" | "Deprecated";
 
@@ -62,9 +63,21 @@ export const categories: AppCategory[] = [
   { title: "神経", description: "Neurology" },
   { title: "循環器", description: "Cardiology" },
   { title: "内科総合", description: "General Medicine" },
+  { title: "総合診療", description: "Primary Care" },
 ];
 
 export const apps: AppItem[] = [
+  {
+    id: "bedside-edema",
+    title: "Bedside Edema Navigator",
+    url: "/bedside-edema",
+    icon: "🦵",
+    category: "総合診療",
+    description: "身体診察から始める浮腫診療",
+    estimatedTime: "5分",
+    badges: ["NEW"],
+    tags: ["浮腫", "身体診察", "総合診療", "ベッドサイド"],
+  },
   {
     id: "infection-antibiotic",
     title: "感染症・抗菌薬初期選択支援",
