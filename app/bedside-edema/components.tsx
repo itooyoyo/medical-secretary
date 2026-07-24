@@ -10,6 +10,16 @@ import {
   type ExamItem,
   type Guide,
 } from "./data";
+import {
+  buildDifferential,
+  calculateWells,
+  interpretAlbumin,
+  interpretBnp,
+  interpretCrp,
+  type LabValues,
+  type WellsInput,
+} from "./algorithm";
+import { sourceMap } from "./evidence";
 
 export type Answers = Record<string, string>;
 
@@ -169,115 +179,96 @@ function MissingPanel({
   );
 }
 
-type Candidate = {
-  name: string;
-  reason: string[];
-  missing: string[];
-  exam: string;
-  test?: string;
+const emptyWells: WellsInput = {
+  activeCancer: false, paralysisOrCast: false, bedriddenOrSurgery: false,
+  deepVeinTenderness: false, entireLegSwollen: false, calfDifference3cm: false,
+  unilateralPitting: false, collateralVeins: false, previousDvt: false,
+  alternativeLikely: false,
 };
 
-function buildCandidates(answers: Answers): Candidate[] {
-  const has = (id: string, values = ["present", "warm", "cold", "large", "reduced", "high"]) =>
-    values.includes(answers[id]);
-  const unknown = (ids: string[]) =>
-    ids.filter((id) => !answers[id] || answers[id] === "unknown")
-      .map((id) => allItems.find((item) => item.id === id)?.label ?? id);
-  const candidates: Candidate[] = [];
+function EvidenceInputs({
+  labs,
+  setLabs,
+  wells,
+  setWells,
+}: {
+  labs: LabValues;
+  setLabs: (labs: LabValues) => void;
+  wells: WellsInput;
+  setWells: (wells: WellsInput) => void;
+}) {
+  const fields: Array<[keyof LabValues, string, string]> = [
+    ["age", "年齢", "歳"], ["bnp", "BNP", "pg/mL"], ["ntProBnp", "NT-proBNP", "pg/mL"],
+    ["albumin", "Alb", "g/dL"], ["creatinine", "Cr", "mg/dL"], ["egfr", "eGFR", "mL/min/1.73㎡"],
+    ["urineProteinCr", "尿蛋白/Cr比", "g/gCr"], ["crp", "CRP", "mg/dL"],
+    ["tsh", "TSH", "μIU/mL"], ["ft4", "FT4", "ng/dL"],
+  ];
+  const wellsLabels: Array<[keyof WellsInput, string, string]> = [
+    ["activeCancer", "活動性悪性腫瘍", "+1"],
+    ["paralysisOrCast", "下肢麻痺・不全麻痺・ギプス固定", "+1"],
+    ["bedriddenOrSurgery", "3日以上臥床／12週以内の大手術", "+1"],
+    ["deepVeinTenderness", "深部静脈走行に沿う圧痛", "+1"],
+    ["entireLegSwollen", "下肢全体の腫脹", "+1"],
+    ["calfDifference3cm", "下腿周径差3cm以上", "+1"],
+    ["unilateralPitting", "患側に限局する圧痕性浮腫", "+1"],
+    ["collateralVeins", "側副表在静脈（非静脈瘤性）", "+1"],
+    ["previousDvt", "DVT既往", "+1"],
+    ["alternativeLikely", "DVTと同程度以上に考えやすい別診断", "−2"],
+  ];
+  const wellsResult = calculateWells(wells);
+  const updateLab = (key: keyof LabValues, raw: string) =>
+    setLabs({ ...labs, [key]: raw === "" ? undefined : Number(raw) });
 
-  if (has("unilateral") || has("calf-difference") || answers["history-1"] === "present") {
-    candidates.push({
-      name: "深部静脈血栓症など片側性静脈還流障害",
-      reason: [
-        has("unilateral") ? "片側性腫脹" : "",
-        has("calf-difference") ? "下腿周径差3cm以上" : "",
-        answers["history-6"] === "present" ? "長距離移動歴" : "",
-      ].filter(Boolean),
-      missing: unknown(["tenderness", "temperature", "calf-difference", "pedal-pulse"]),
-      exam: "深部静脈走行の圧痛、皮膚温、下腿周径を左右比較",
-      test: "臨床確率を評価したうえでD-dimer／下肢静脈超音波",
-    });
-  }
-
-  if (has("jvd") || has("jvp") || has("crackles") || has("s3")) {
-    candidates.push({
-      name: "うっ血性心不全",
-      reason: [
-        has("jvd") || has("jvp") ? "頸静脈圧上昇" : "",
-        has("crackles") ? "肺ラ音" : "",
-        has("s3") ? "Ⅲ音" : "",
-        has("bilateral") ? "両側性浮腫" : "",
-      ].filter(Boolean),
-      missing: unknown(["jvp", "crackles", "s3", "sacral"]),
-      exam: "頸静脈圧、肺底部、Ⅲ音、仙骨浮腫を再確認",
-      test: "診察で疑う場合にBNP、心電図、胸部画像、心エコー",
-    });
-  }
-
-  if (has("pigmentation") || answers["history-4"] === "present" || answers["history-5"] === "present") {
-    candidates.push({
-      name: "慢性静脈不全",
-      reason: [
-        has("pigmentation") ? "下腿色素沈着" : "",
-        answers["history-4"] === "present" ? "挙上で改善" : "",
-        answers["history-5"] === "present" ? "長時間立位" : "",
-      ].filter(Boolean),
-      missing: unknown(["ulcer", "venous-distension", "pedal-pulse"]),
-      exam: "静脈瘤、内果周囲の皮膚変化、潰瘍、動脈拍動を確認",
-      test: "非典型例や介入検討時に静脈超音波",
-    });
-  }
-
-  if (has("stemmer") || has("induration") || answers["history-10"] === "present") {
-    candidates.push({
-      name: "リンパ浮腫",
-      reason: [
-        has("stemmer") ? "Stemmer徴候陽性" : "",
-        has("induration") ? "皮膚硬化" : "",
-        answers["history-10"] === "present" ? "リンパ節郭清歴" : "",
-      ].filter(Boolean),
-      missing: unknown(["stemmer", "dorsum", "induration"]),
-      exam: "足背・趾を含む分布、Stemmer徴候、皮膚硬化を確認",
-      test: "診察で典型的なら通常は検査不要。非典型例は画像を検討",
-    });
-  }
-
-  if (has("erythema") || answers.temperature === "warm" || has("tenderness")) {
-    candidates.push({
-      name: "蜂窩織炎など炎症性浮腫",
-      reason: [
-        has("erythema") ? "発赤" : "",
-        answers.temperature === "warm" ? "皮膚温上昇" : "",
-        has("tenderness") ? "圧痛" : "",
-      ].filter(Boolean),
-      missing: unknown(["temperature", "tenderness", "ulcer"]),
-      exam: "発赤範囲、皮膚温、圧痛、侵入門戸と全身状態を確認",
-      test: "全身症や重症所見がある場合に血算・炎症反応など",
-    });
-  }
-
-  if (!candidates.length) {
-    candidates.push({
-      name: "現時点では特徴的なパターンが不十分",
-      reason: ["入力済みの身体所見だけでは主要パターンを支持する組み合わせが未成立"],
-      missing: unknown(["unilateral", "pitting", "stemmer", "jvp", "sacral", "dorsum"]),
-      exam: "分布、圧痕、足背・仙骨、頸静脈、Stemmer徴候を優先して確認",
-      test: "身体診察を完了して仮説を立てた後、必要最小限に選択",
-    });
-  }
-  return candidates.slice(0, 3);
+  return (
+    <section className="edema-input-panel" aria-label="必要時検査入力">
+      <div className="edema-section-title">
+        <div><span>OPTIONAL DATA</span><h2>必要時のみ検査</h2></div>
+        <b>未入力は陰性扱いしません</b>
+      </div>
+      <div className="edema-number-grid">
+        {fields.map(([key, label, unit]) => (
+          <label key={key}>
+            <span>{label}</span>
+            <div><input aria-label={label} type="number" min="0" step="any" value={labs[key] ?? ""} onChange={(event) => updateLab(key, event.target.value)} /><small>{unit}</small></div>
+          </label>
+        ))}
+      </div>
+      <div className="edema-lab-badges">
+        {[interpretBnp(labs), interpretAlbumin(labs.albumin), interpretCrp(labs.crp)].map((result, index) => (
+          <div key={index} data-status={result.status}><strong>{["BNP", "Alb", "CRP"][index]}：{result.label}</strong><span>{result.detail}</span></div>
+        ))}
+      </div>
+      <details className="edema-wells">
+        <summary><span>DVT Wells score（2-level）</span><b>{wellsResult.score}点・{wellsResult.category}</b></summary>
+        <p>NICE掲載の検証済み項目を改変せず使用。スコア単独で診断しません。</p>
+        <div>
+          {wellsLabels.map(([key, label, points]) => (
+            <label key={key}><input type="checkbox" checked={wells[key]} onChange={(event) => setWells({ ...wells, [key]: event.target.checked })} /><span>{label}</span><b>{points}</b></label>
+          ))}
+        </div>
+      </details>
+    </section>
+  );
 }
 
 function ResultView({
   answers,
+  labs,
+  setLabs,
+  wells,
+  setWells,
   onBack,
   onReset,
 }: {
   answers: Answers;
+  labs: LabValues;
+  setLabs: (labs: LabValues) => void;
+  wells: WellsInput;
+  setWells: (wells: WellsInput) => void;
   onBack: () => void;
   onReset: () => void;
 }) {
-  const candidates = buildCandidates(answers);
+  const candidates = buildDifferential(answers, labs).slice(0, 4);
   const red = redFlags.filter((item) => {
     const choice = item.choices.find((option) => option.value === answers[item.id]);
     return choice?.positive;
@@ -296,15 +287,25 @@ function ResultView({
           <p>{red.map((item) => item.label).join("・")}</p>
         </div>
       )}
+      <EvidenceInputs labs={labs} setLabs={setLabs} wells={wells} setWells={setWells} />
+      <div className="edema-section-title edema-basis-title">
+        <div><span>EVIDENCE-BASED DIFFERENTIAL</span><h2>判断根拠</h2></div>
+        <Link href="/bedside-edema/references">参考文献 →</Link>
+      </div>
       {candidates.map((candidate, index) => (
-        <article className="edema-result-card" key={candidate.name}>
+        <article className="edema-result-card" key={candidate.id} data-differential-id={candidate.id}>
           <span className="edema-rank">0{index + 1}</span>
           <h2>{candidate.name}</h2>
           <dl>
-            <div><dt>根拠となる身体所見</dt><dd>{candidate.reason.join("・")}</dd></div>
-            <div><dt>まだ確認していない身体所見</dt><dd>{candidate.missing.length ? candidate.missing.join("・") : "主要項目は確認済み"}</dd></div>
-            <div><dt>推奨される追加診察</dt><dd>{candidate.exam}</dd></div>
-            <div><dt>必要なら推奨検査</dt><dd>{candidate.test ?? "現時点では必須検査なし"}</dd></div>
+            <div><dt>支持所見</dt><dd>{candidate.support.length ? candidate.support.join("・") : "現時点で明確な支持所見なし"}</dd></div>
+            <div><dt>反対所見</dt><dd>{candidate.against.length ? candidate.against.join("・") : "確認された明確な反対所見なし"}</dd></div>
+            <div><dt>未確認所見</dt><dd>{candidate.missing.length ? candidate.missing.join("・") : "主要項目は確認済み"}</dd></div>
+            <div><dt>推奨する次の評価</dt><dd>{candidate.next}</dd></div>
+            <div><dt>必要なら推奨検査</dt><dd>{candidate.tests}</dd></div>
+            <div><dt>参考情報源</dt><dd className="edema-sources">{candidate.sourceIds.map((sourceId) => {
+              const source = sourceMap[sourceId];
+              return <a key={sourceId} href={source.url} target="_blank" rel="noopener noreferrer">{source.publisher}, {source.year}</a>;
+            })}</dd></div>
           </dl>
         </article>
       ))}
@@ -324,6 +325,8 @@ export default function EdemaNavigator() {
   const [guide, setGuide] = useState<ExamItem | null>(null);
   const [showMissing, setShowMissing] = useState(false);
   const [showResult, setShowResult] = useState(false);
+  const [labs, setLabs] = useState<LabValues>({});
+  const [wells, setWells] = useState<WellsInput>(emptyWells);
 
   const steps = useMemo(
     () => [{ id: "red", number: 0, title: "Red Flags", english: "SAFETY", description: "最初に必ず緊急所見を確認します", items: redFlags }, ...examSteps],
@@ -356,6 +359,8 @@ export default function EdemaNavigator() {
     setItemIndex(nextItem);
     setShowMissing(false);
     setShowResult(false);
+    setLabs({});
+    setWells(emptyWells);
   }
 
   function reset() {
@@ -366,7 +371,7 @@ export default function EdemaNavigator() {
   }
 
   if (showResult) {
-    return <ResultView answers={answers} onBack={() => setShowResult(false)} onReset={reset} />;
+    return <ResultView answers={answers} labs={labs} setLabs={setLabs} wells={wells} setWells={setWells} onBack={() => setShowResult(false)} onReset={reset} />;
   }
 
   return (

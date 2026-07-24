@@ -97,6 +97,52 @@
 .edema-result-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 20px; }
 .edema-result-actions button { min-height: 52px; border: 1px solid var(--line); border-radius: 13px; background: rgba(111,227,208,.07); color: var(--teal); font-weight: 800; }
 .edema-disclaimer { margin-top: 22px; color: #587075; font-size: 10px; line-height: 1.7; text-align: center; }
+.edema-section-title { display: flex; align-items: end; justify-content: space-between; gap: 14px; }
+.edema-section-title span { color: var(--teal); font-family: var(--font-geist-mono); font-size: 9px; font-weight: 900; letter-spacing: .18em; }
+.edema-section-title h2 { margin-top: 5px; font-size: 22px; }
+.edema-section-title > b { color: #f0b876; font-size: 10px; }
+.edema-input-panel { margin: 18px 0 28px; padding: 20px; border: 1px solid var(--line); border-radius: 20px; background: rgba(14, 35, 37, .8); }
+.edema-number-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; margin-top: 18px; }
+.edema-number-grid label > span { display: block; margin-bottom: 5px; color: #8ca6ab; font-size: 10px; font-weight: 800; }
+.edema-number-grid label > div { display: grid; grid-template-columns: 1fr auto; align-items: center; overflow: hidden; border: 1px solid var(--line); border-radius: 11px; background: rgba(3,12,13,.5); }
+.edema-number-grid input { min-width: 0; height: 46px; padding: 0 10px; border: 0; outline: 0; background: transparent; color: white; font-size: 16px; }
+.edema-number-grid small { padding-right: 9px; color: #5f797d; font-size: 8px; }
+.edema-lab-badges { display: grid; gap: 7px; margin-top: 14px; }
+.edema-lab-badges div { display: grid; gap: 3px; padding: 10px 12px; border-left: 3px solid #60777a; background: rgba(255,255,255,.025); }
+.edema-lab-badges div[data-status="high"] { border-color: #f59e8b; }
+.edema-lab-badges div[data-status="intermediate"], .edema-lab-badges div[data-status="caution"] { border-color: #f0b876; }
+.edema-lab-badges strong { font-size: 11px; }
+.edema-lab-badges span { color: #8ca6ab; font-size: 9px; line-height: 1.5; }
+.edema-wells { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 13px; }
+.edema-wells summary { display: flex; justify-content: space-between; gap: 8px; min-height: 44px; align-items: center; cursor: pointer; color: #dce9ea; font-size: 11px; font-weight: 800; }
+.edema-wells summary b { color: var(--teal); }
+.edema-wells > p { margin: 5px 0 10px; color: #748d91; font-size: 9px; }
+.edema-wells > div { display: grid; gap: 5px; }
+.edema-wells label { display: grid; grid-template-columns: auto 1fr auto; gap: 9px; align-items: center; min-height: 42px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 9px; color: #b9cbcd; font-size: 10px; }
+.edema-wells input { accent-color: #6fe3d0; width: 18px; height: 18px; }
+.edema-wells label b { color: var(--teal); }
+.edema-basis-title { margin: 28px 0 10px; }
+.edema-basis-title a, .edema-sources a { color: var(--teal); font-size: 10px; font-weight: 800; text-decoration: none; }
+.edema-sources { display: flex; flex-wrap: wrap; gap: 7px; }
+.edema-sources a { padding: 5px 7px; border: 1px solid var(--line); border-radius: 6px; }
+.edema-references { position: relative; width: min(100%, 760px); margin: 0 auto; padding: 28px 18px 90px; }
+.edema-reference-nav { display: flex; justify-content: space-between; align-items: center; }
+.edema-reference-nav a, .edema-reference-nav span { color: var(--muted); font-size: 10px; font-weight: 900; text-decoration: none; letter-spacing: .1em; }
+.edema-references > header { padding: 60px 0 26px; }
+.edema-references > header > span { color: var(--teal); font-family: var(--font-geist-mono); font-size: 10px; letter-spacing: .2em; }
+.edema-references h1 { margin-top: 8px; font-size: clamp(30px, 8vw, 48px); letter-spacing: -.045em; }
+.edema-references > header p { margin-top: 12px; color: var(--muted); font-size: 12px; line-height: 1.8; }
+.edema-reference-list { display: grid; gap: 10px; }
+.edema-reference-list article { display: grid; grid-template-columns: 42px 1fr; gap: 10px; padding: 20px 16px; border: 1px solid var(--line); border-radius: 17px; background: rgba(14,35,37,.68); }
+.edema-reference-list article > span { color: rgba(111,227,208,.25); font-family: var(--font-geist-mono); font-size: 22px; font-weight: 900; }
+.edema-reference-list code { color: var(--teal); font-size: 9px; }
+.edema-reference-list h2 { margin-top: 5px; font-size: 15px; line-height: 1.45; }
+.edema-reference-list p { margin-top: 4px; color: #728b8f; font-size: 10px; }
+.edema-reference-list dl { margin: 13px 0; }
+.edema-reference-list dt { color: var(--teal); font-size: 9px; font-weight: 900; }
+.edema-reference-list dd { margin-top: 3px; color: #aec1c4; font-size: 11px; line-height: 1.65; }
+.edema-reference-list a { color: var(--teal); font-size: 10px; font-weight: 900; text-decoration: none; }
+.edema-fixed-note { position: fixed; z-index: 10; bottom: 0; left: 50%; width: min(100%,760px); transform: translateX(-50%); padding: 14px 18px; border-top: 1px solid var(--line); background: rgba(7,18,20,.94); color: #789094; font-size: 9px; text-align: center; backdrop-filter: blur(15px); }
 
 @media (min-width: 720px) {
   .edema-app { padding-inline: 34px; }
@@ -110,9 +156,10 @@
   .edema-guide-grid { grid-template-columns: 1fr; }
   .edema-choices { gap: 6px; }
   .edema-choices button { padding-inline: 5px; font-size: 12px; }
+  .edema-number-grid { grid-template-columns: 1fr; }
+  .edema-section-title { align-items: start; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .edema-progress-track span, .edema-choices button { transition: none; }
 }
-
