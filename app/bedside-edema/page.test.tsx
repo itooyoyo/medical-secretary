@@ -1,7 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import EdemaNavigator from "./components";
-import { examSteps, physicalExamItemIds, redFlags } from "./data";
 import ReferencesPage from "./references/page";
 import {
   buildDifferential,
@@ -11,56 +10,52 @@ import {
 } from "./algorithm";
 
 describe("Bedside Edema Navigator", () => {
-  it("defines 7 navigation steps and 32 physical examination items", () => {
-    expect(examSteps).toHaveLength(6);
-    expect(redFlags).toHaveLength(10);
-    expect(physicalExamItemIds.size).toBe(32);
+  it("renders the five-section single page without Step navigation", () => {
+    render(<EdemaNavigator />);
+    for (const title of ["分布", "身体所見", "背景", "検査値", "結果"]) {
+      expect(screen.getByRole("heading", { name: title })).toBeInTheDocument();
+    }
+    expect(screen.queryByText(/STEP \d/)).not.toBeInTheDocument();
   });
 
-  it("starts with Red Flags and exposes completion and missing controls", () => {
+  it("shows the new character and home copy", () => {
     render(<EdemaNavigator />);
-    expect(screen.getByText("Red Flags")).toBeInTheDocument();
-    expect(screen.getByText("診察完了率")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /未確認一覧を開く/ })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "白い未来的装甲をまとった医療AIガーディアン" })).toBeInTheDocument();
+    expect(screen.getByText("身体診察と最小限の検査から浮腫を鑑別します")).toBeInTheDocument();
   });
 
-  it("shows a warning when a red flag is selected", () => {
-    vi.spyOn(window, "setTimeout").mockImplementation(() => 0 as unknown as number);
+  it("shows a character warning when a red flag is selected", () => {
     render(<EdemaNavigator />);
-    fireEvent.click(screen.getByRole("button", { name: "あり" }));
-    expect(screen.getByText("緊急評価を優先してください")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "＋急速に悪化" }));
+    expect(screen.getByText(/Red Flagを1件検出/)).toBeInTheDocument();
+    expect(screen.getByText("救急対応を遅らせないでください。")).toBeInTheDocument();
   });
 
-  it("opens the unconfirmed list and jumps to an examination item", () => {
+  it("conditionally shows unilateral findings and D-dimer only for unilateral edema", () => {
     render(<EdemaNavigator />);
-    fireEvent.click(screen.getByRole("button", { name: /未確認一覧を開く/ }));
-    expect(screen.getByRole("dialog", { name: "未確認一覧" })).toBeInTheDocument();
-    const row = screen.getByRole("button", { name: /Stemmer徴候/ });
-    fireEvent.click(row);
-    expect(screen.getByText("Stemmer徴候")).toBeInTheDocument();
+    expect(screen.queryByText("炎症・血栓を示唆する局所所見")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("D-dimer")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /片側一方の下肢/ }));
+    expect(screen.getByText("炎症・血栓を示唆する局所所見")).toBeInTheDocument();
+    expect(screen.getByLabelText("D-dimer")).toBeInTheDocument();
+    expect(screen.queryByLabelText("BNP")).not.toBeInTheDocument();
   });
 
-  it("opens the six-part physical examination info guide", () => {
+  it("conditionally shows systemic findings and BNP only for bilateral edema", () => {
     render(<EdemaNavigator />);
-    fireEvent.click(screen.getByRole("button", { name: /未確認一覧を開く/ }));
-    fireEvent.click(screen.getByRole("button", { name: /足背浮腫/ }));
-    fireEvent.click(screen.getByRole("button", { name: "足背浮腫の診察ガイド" }));
-    expect(screen.getByText("どこを見るか")).toBeInTheDocument();
-    expect(screen.getByText("どう触るか")).toBeInTheDocument();
-    expect(screen.getByText("正常所見")).toBeInTheDocument();
-    expect(screen.getByText("異常所見")).toBeInTheDocument();
-    expect(screen.getByText("何を疑うか")).toBeInTheDocument();
-    expect(screen.getByText("診察のコツ")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /両側両下肢/ }));
+    expect(screen.getByText("全身うっ血所見（複数選択）")).toBeInTheDocument();
+    expect(screen.getByLabelText("BNP")).toBeInTheDocument();
+    expect(screen.queryByLabelText("D-dimer")).not.toBeInTheDocument();
   });
 
   it("renders structured results rather than a diagnosis name alone", () => {
     render(<EdemaNavigator />);
-    fireEvent.click(screen.getByRole("button", { name: "結果" }));
     expect(screen.getAllByText("支持所見").length).toBeGreaterThan(0);
     expect(screen.getAllByText("反対所見").length).toBeGreaterThan(0);
     expect(screen.getAllByText("未確認所見").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("推奨する次の評価").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("必要なら推奨検査").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("次の評価").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("必要なら検査").length).toBeGreaterThan(0);
   });
 
   it("ranks DVT first for acute unilateral edema", () => {

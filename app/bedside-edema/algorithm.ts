@@ -11,6 +11,7 @@ export type LabValues = {
   egfr?: number;
   urineProteinCr?: number;
   crp?: number;
+  dDimer?: number;
   tsh?: number;
   ft4?: number;
 };
@@ -243,4 +244,3 @@ export function buildDifferential(answers: Answers, labs: LabValues = {}): Diffe
     })
     .sort((a, b) => b.score - a.score);
 }
-
