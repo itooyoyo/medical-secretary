@@ -34,6 +34,17 @@
 .mk-progress strong { color: var(--mk-cyan); font-size: 16px; }
 .mk-progress > div:last-child { height: 4px; margin-top: 6px; overflow: hidden; border-radius: 4px; background: rgba(255,255,255,.07); }
 .mk-progress > div:last-child span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--mk-blue), var(--mk-cyan)); box-shadow: 0 0 12px rgba(128,244,255,.5); transition: width .25s ease; }
+.mk-guide { position: relative; display: grid; grid-template-columns: minmax(0,1fr) 84px; gap: 12px; align-items: end; }
+.mk-guide-bubble { position: relative; align-self: center; padding: 13px 16px; border: 1px solid rgba(128,244,255,.34); border-radius: 15px; background: rgba(2,15,31,.9); color: #c7dce7; box-shadow: 0 12px 32px rgba(0,0,0,.22), inset 0 1px rgba(255,255,255,.03); }
+.mk-guide-bubble::after { position: absolute; top: 50%; right: -8px; width: 14px; height: 14px; border-top: 1px solid rgba(128,244,255,.34); border-right: 1px solid rgba(128,244,255,.34); background: rgba(2,15,31,.9); content: ""; transform: translateY(-50%) rotate(45deg); }
+.mk-guide-bubble strong { display: block; margin-bottom: 5px; color: var(--mk-cyan); font-family: var(--font-geist-mono); font-size: 9px; letter-spacing: .11em; }
+.mk-guide-bubble div { font-size: 10px; line-height: 1.65; }
+.mk-guide-character { position: relative; width: 84px; height: 96px; justify-self: end; }
+.mk-guide-character img { object-fit: contain; object-position: center bottom; filter: drop-shadow(0 8px 16px rgba(0,0,0,.42)) drop-shadow(0 0 10px rgba(86,217,235,.13)); }
+.mk-guide-warning .mk-guide-bubble { border-color: rgba(248,113,113,.52); background: rgba(65,12,25,.88); color: #fee2e2; }
+.mk-guide-warning .mk-guide-bubble::after { border-color: rgba(248,113,113,.52); background: rgba(65,12,25,.88); }
+.mk-guide-warning .mk-guide-bubble strong { color: #fda4af; }
+.mk-guide-result .mk-guide-bubble { border-color: rgba(96,165,250,.38); }
 .mk-number > span { display: block; margin-bottom: 6px; color: var(--mk-muted); font-size: 10px; font-weight: 900; }
 .mk-number > div { display: grid; grid-template-columns: 1fr auto; align-items: center; overflow: hidden; border: 1px solid var(--mk-line); border-radius: 11px; background: rgba(0,7,18,.55); }
 .mk-number input { min-width: 0; height: 46px; padding: 0 10px; border: 0; outline: 0; background: transparent; color: white; font-size: 16px; }
@@ -44,4 +55,3 @@
 .mk-bottom-nav a span { font-size: 15px; }
 @media (min-width: 760px) { .mk-bottom-nav { bottom: 16px; } }
 @media (prefers-reduced-motion: reduce) { .mk-progress span, .mk-button { transition: none; } }
-

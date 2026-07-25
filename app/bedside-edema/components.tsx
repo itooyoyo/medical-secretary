@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
@@ -9,6 +8,7 @@ import {
   MedicalBottomNavigation,
   MedicalButton,
   MedicalCard,
+  MedicalGuide,
   MedicalNumberInput,
   MedicalProgress,
   MedicalSpace,
@@ -96,21 +96,6 @@ function ChoiceGroup({
   );
 }
 
-function CharacterMessage({
-  tone,
-  children,
-}: {
-  tone: "guide" | "warning" | "result";
-  children: React.ReactNode;
-}) {
-  return (
-    <div className={`station-character-message station-character-${tone}`}>
-      <span>{tone === "warning" ? "ALERT" : tone === "result" ? "ASSESSMENT" : "MED-AI GUIDE"}</span>
-      <p>{children}</p>
-    </div>
-  );
-}
-
 function EvidenceResult({
   answers,
   labs,
@@ -126,11 +111,16 @@ function EvidenceResult({
 
   return (
     <div className="station-results-stack">
-      <CharacterMessage tone="result">
+      <MedicalGuide
+        imageSrc="/edema-ai-guide.png"
+        imageAlt="白い未来的装甲の浮腫診療AIナビゲーター"
+        title="診療ガイド"
+        tone="result"
+      >
         {top.support.length
           ? `現時点では「${top.name}」を支持する所見が最も多いです。未確認所見を埋めて再評価してください。`
           : "まだ支持所見が十分ではありません。未確認の身体所見から確認しましょう。"}
-      </CharacterMessage>
+      </MedicalGuide>
 
       {(labs.bnp != null || labs.ntProBnp != null || labs.albumin != null || labs.crp != null) && (
         <div className="station-lab-summary">
@@ -225,12 +215,17 @@ export default function EdemaNavigator() {
             <MedicalBadge>GENERAL PRACTICE · 60 SEC</MedicalBadge>
             <h1>Bedside Edema<br />Navigator</h1>
             <p>身体診察と最小限の検査から浮腫を鑑別します</p>
-            <CharacterMessage tone="guide">必要な所見だけを表示します。まず分布を選択してください。</CharacterMessage>
           </div>
-          <div className="station-guardian">
-            <div className="station-holo-ring" />
-            <Image src="/edema-ai-guardian.png" alt="白い未来的装甲をまとった医療AIガーディアン" fill priority sizes="(max-width: 600px) 52vw, 340px" />
-          </div>
+          <MedicalGuide
+            className="station-hero-guide"
+            imageSrc="/edema-ai-guide.png"
+            imageAlt="白い未来的装甲の浮腫診療AIナビゲーター"
+            title="診療ガイド"
+          >
+            <p>浮腫診療を開始します。</p>
+            <p>まず浮腫の分布を選択してください。</p>
+            <p>必要な項目のみ表示します。</p>
+          </MedicalGuide>
         </MedicalCard>
 
         <section id="distribution" className="station-section">
@@ -245,7 +240,14 @@ export default function EdemaNavigator() {
             />
             {redFlagCount > 0 && (
               <div className="station-character-alert">
-                <CharacterMessage tone="warning">Red Flagを{redFlagCount}件検出。入力継続より緊急評価を優先してください。</CharacterMessage>
+                <MedicalGuide
+                  imageSrc="/edema-ai-guide.png"
+                  imageAlt="白い未来的装甲の浮腫診療AIナビゲーター"
+                  title="緊急診療ガイド"
+                  tone="warning"
+                >
+                  Red Flagを{redFlagCount}件検出。入力継続より緊急評価を優先してください。
+                </MedicalGuide>
                 <MedicalAlert title="緊急評価を優先" tone="danger">救急対応を遅らせないでください。</MedicalAlert>
               </div>
             )}

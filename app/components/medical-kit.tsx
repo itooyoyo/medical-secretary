@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 export function MedicalSpace({
@@ -81,6 +82,34 @@ export function MedicalProgress({
   );
 }
 
+export function MedicalGuide({
+  children,
+  className = "",
+  imageSrc,
+  imageAlt,
+  title = "診療ガイド",
+  tone = "guide",
+}: {
+  children: ReactNode;
+  className?: string;
+  imageSrc: string;
+  imageAlt: string;
+  title?: string;
+  tone?: "guide" | "warning" | "result";
+}) {
+  return (
+    <aside className={`mk-guide mk-guide-${tone} ${className}`} aria-label={title}>
+      <div className="mk-guide-bubble">
+        <strong>{title}</strong>
+        <div>{children}</div>
+      </div>
+      <div className="mk-guide-character">
+        <Image src={imageSrc} alt={imageAlt} fill sizes="(max-width: 650px) 150px, 260px" />
+      </div>
+    </aside>
+  );
+}
+
 export function MedicalNumberInput({
   label,
   unit,
@@ -123,4 +152,3 @@ export function MedicalBottomNavigation({
     </nav>
   );
 }
-

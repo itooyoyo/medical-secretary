@@ -52,6 +52,10 @@ afterEach(() => {
 });
 
 describe("Medical AI Console v3", () => {
+  it("registers Bedside Edema Navigator under 内科総合", () => {
+    expect(apps.find((app) => app.id === "bedside-edema")?.category).toBe("内科総合");
+  });
+
   it("renders the app catalog and core dashboard areas", async () => {
     renderConsole();
 
