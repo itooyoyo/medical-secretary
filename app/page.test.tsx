@@ -57,8 +57,14 @@ afterEach(() => {
 });
 
 describe("Medical AI Console v3", () => {
-  it("registers Bedside Edema Navigator under 内科総合", () => {
+  it("registers 浮腫診断ナビ under 内科総合 with the English subtitle preserved", () => {
     expect(apps.find((app) => app.id === "bedside-edema")?.category).toBe("内科総合");
+    expect(apps.find((app) => app.id === "bedside-edema")?.title).toBe(
+      "浮腫診断ナビ",
+    );
+    expect(apps.find((app) => app.id === "bedside-edema")?.subtitle).toBe(
+      "Bedside Edema Navigator",
+    );
   });
 
   it("renders the app catalog and core dashboard areas", async () => {
@@ -108,6 +114,16 @@ describe("Medical AI Console v3", () => {
     });
 
     expect(appsSection().getByText("糖尿病治療薬選択支援")).toBeInTheDocument();
+  });
+
+  it("searches the edema app by its English subtitle", async () => {
+    renderConsole();
+    fireEvent.change(await screen.findByLabelText("タイトル、説明、カテゴリ、タグでアプリを検索"), {
+      target: { value: "Bedside Edema Navigator" },
+    });
+
+    expect(appsSection().getByText("浮腫診断ナビ")).toBeInTheDocument();
+    expect(appsSection().getByText("Bedside Edema Navigator")).toBeInTheDocument();
   });
 
   it("shows an empty state when search has no matches", async () => {
@@ -265,7 +281,7 @@ describe("Medical AI Console v3", () => {
     expect(await screen.findByText("内科総合")).toBeInTheDocument();
     expect(
       appsSection().getByRole("link", {
-        name: "Bedside Edema Navigatorを開く",
+        name: "浮腫診断ナビを開く",
       }),
     ).toHaveAttribute("href", "/bedside-edema");
   });

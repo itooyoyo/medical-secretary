@@ -24,6 +24,7 @@ type BadgeStatus = "NEW" | "BETA" | "Stable" | "Deprecated";
 type AppItem = {
   id: string;
   title: string;
+  subtitle?: string;
   url: string;
   icon: string;
   category: AppCategoryName;
@@ -66,7 +67,8 @@ export const categories: AppCategory[] = [
 export const apps: AppItem[] = [
   {
     id: "bedside-edema",
-    title: "Bedside Edema Navigator",
+    title: "浮腫診断ナビ",
+    subtitle: "Bedside Edema Navigator",
     url: "/bedside-edema",
     icon: "🦵",
     category: "内科総合",
@@ -222,7 +224,7 @@ export const clinicalPearls: ClinicalPearl[] = [
 export const releaseNotes = {
   version: VERSION,
   date: "2026-07-22",
-  changes: "Clinical Operating System化、Quick Access、Recent 5件、JSON Pearlを追加。",
+  changes: "トップページを余白中心に整理し、浮腫診断ナビの表示名を更新。",
 };
 
 export function safeParse<T>(value: string | null, fallback: T): T {
@@ -353,7 +355,7 @@ function MedicalButton({
 
 function MedicalBadge({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex min-h-5 items-center rounded-full border border-cyan-200/25 bg-cyan-300/10 px-1.5 text-[9px] font-black tracking-wide text-cyan-100">
+    <span className="inline-flex min-h-5 items-center rounded-full border border-cyan-200/20 px-1.5 text-[9px] font-black tracking-wide text-cyan-100/90">
       {children}
     </span>
   );
@@ -457,7 +459,7 @@ const AppCard = memo(function AppCard({
   usedAt?: number;
 }) {
   return (
-    <MedicalCard className="group relative min-h-[88px] p-2.5 transition hover:-translate-y-0.5 hover:border-cyan-200/35 hover:bg-cyan-950/25">
+    <MedicalCard className="group relative min-h-[88px] p-2.5 shadow-none transition hover:-translate-y-0.5 hover:border-cyan-200/35 hover:bg-cyan-950/20">
       <button
         type="button"
         aria-label={`${app.title}をFavorite${isFavorite ? "から解除" : "に追加"}`}
@@ -491,6 +493,11 @@ const AppCard = memo(function AppCard({
                 ))}
               </span>
             </div>
+            {app.subtitle ? (
+              <p className="truncate text-[10px] font-semibold leading-4 text-slate-500">
+                {app.subtitle}
+              </p>
+            ) : null}
             <p className="mt-0.5 line-clamp-1 text-[11px] font-semibold leading-4 text-slate-400">
               {app.description}
             </p>
@@ -586,7 +593,14 @@ export default function Home() {
     if (!normalizedQuery) return apps;
 
     return apps.filter((app) =>
-      [app.title, app.description, app.category, ...app.tags, ...app.badges]
+      [
+        app.title,
+        app.subtitle,
+        app.description,
+        app.category,
+        ...app.tags,
+        ...app.badges,
+      ]
         .join(" ")
         .toLowerCase()
         .includes(normalizedQuery),
@@ -620,7 +634,7 @@ export default function Home() {
     <MedicalPage>
       <section
         id="home"
-        className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-2xl border border-cyan-100/10 bg-slate-950/50 p-2.5 shadow-[0_14px_48px_rgba(0,0,0,0.22)] sm:p-3"
+        className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 border-b border-cyan-200/10 pb-3"
       >
         <Image
           src="/guide-character.png"
@@ -638,15 +652,15 @@ export default function Home() {
             Clinical Decision Support Platform
           </p>
         </div>
-        <div className="grid justify-items-end gap-1 text-[10px] font-black">
-          <MedicalBadge>{VERSION}</MedicalBadge>
+        <div className="grid justify-items-end gap-1 text-[10px] font-black text-slate-400">
+          <span>{VERSION}</span>
           <span className="text-emerald-300">● Online</span>
         </div>
       </section>
 
       <section
         aria-label="Dashboard"
-        className="-mx-2.5 flex gap-2 overflow-x-auto px-2.5 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-4 sm:overflow-visible sm:px-0"
+        className="grid grid-cols-4 gap-2 border-b border-cyan-200/10 pb-3"
       >
         {[
           ["Apps", apps.length.toString()],
@@ -654,15 +668,17 @@ export default function Home() {
           ["Version", VERSION],
           ["Online", "●"],
         ].map(([label, value]) => (
-          <MedicalCard
+          <div
             key={label}
-            className="min-w-[104px] p-2.5 sm:min-w-0"
+            className="min-w-0"
           >
             <p className="text-[9px] font-black uppercase tracking-[0.12em] text-slate-500">
               {label}
             </p>
-            <p className="mt-1 text-lg font-black text-white">{value}</p>
-          </MedicalCard>
+            <p className="mt-1 truncate text-base font-black text-white sm:text-lg">
+              {value}
+            </p>
+          </div>
         ))}
       </section>
 
@@ -777,10 +793,12 @@ export default function Home() {
       </section>
 
       <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <details className="rounded-2xl border border-cyan-100/10 bg-slate-950/42 p-3 shadow-[0_14px_44px_rgba(0,0,0,0.18)] backdrop-blur-sm">
+        <details className="border-t border-cyan-200/10 pt-2">
           <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 text-xs font-black text-cyan-300/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-200">
             Clinical Pearl
-            <MedicalBadge>{pearl.category}</MedicalBadge>
+            <span className="text-[10px] font-bold text-slate-500">
+              {pearl.category}
+            </span>
           </summary>
           <h2 className="mt-2 text-sm font-black text-white">{pearl.title}</h2>
           <p className="mt-1 text-xs font-semibold leading-5 text-slate-400">
@@ -793,21 +811,21 @@ export default function Home() {
 
         <section className="grid gap-2" aria-label="Release Notes">
           <MedicalSectionHeader title="Release Notes" />
-          <MedicalCard className="p-3">
-            <div className="flex flex-wrap gap-1.5">
-              <MedicalBadge>{releaseNotes.version}</MedicalBadge>
-              <MedicalBadge>{releaseNotes.date}</MedicalBadge>
-            </div>
+          <div className="border-b border-cyan-200/10 pb-3">
+            <p className="flex flex-wrap gap-x-2 text-[10px] font-black uppercase tracking-[0.14em] text-slate-500">
+              <span>{releaseNotes.version}</span>
+              <span>{releaseNotes.date}</span>
+            </p>
             <p className="mt-2 text-xs font-semibold leading-5 text-slate-400">
               {releaseNotes.changes}
             </p>
-          </MedicalCard>
+          </div>
         </section>
       </div>
 
       <section id="settings" className="grid gap-2 scroll-mt-4">
         <MedicalSectionHeader title="Links" />
-        <MedicalCard className="grid divide-y divide-cyan-100/10 sm:grid-cols-4 sm:divide-x sm:divide-y-0">
+        <div className="grid divide-y divide-cyan-100/10 border-b border-cyan-200/10 sm:grid-cols-4 sm:divide-x sm:divide-y-0">
           {[
             ["Antaa", "https://slide.antaa.jp/profile/aEvSNVPlS4Cj"],
             ["Note", "https://note.com/"],
@@ -825,18 +843,18 @@ export default function Home() {
               <span className="text-cyan-200">→</span>
             </MedicalButton>
           ))}
-        </MedicalCard>
+        </div>
       </section>
 
       <footer className="border-t border-cyan-200/10 pt-3 text-[11px] font-semibold leading-5 text-slate-500 sm:flex sm:flex-wrap sm:items-center sm:gap-x-4">
         <span>Version {VERSION}</span>
-        <a href="#" className="min-h-11 py-3 hover:text-cyan-200">
+        <a href="#" className="inline-flex min-h-11 min-w-11 items-center py-3 hover:text-cyan-200">
           License
         </a>
-        <a href="#" className="min-h-11 py-3 hover:text-cyan-200">
+        <a href="#" className="inline-flex min-h-11 min-w-11 items-center py-3 hover:text-cyan-200">
           Privacy
         </a>
-        <a href="#" className="min-h-11 py-3 hover:text-cyan-200">
+        <a href="#" className="inline-flex min-h-11 min-w-11 items-center py-3 hover:text-cyan-200">
           Disclaimer
         </a>
         <span className="font-black text-cyan-300/80">Developed by Dr. Ito</span>
