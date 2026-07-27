@@ -2,7 +2,6 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Home, {
   FAVORITES_KEY,
-  LAUNCH_COUNTS_KEY,
   RECENT_KEY,
   apps,
   clinicalPearls,
@@ -34,6 +33,12 @@ function favoritesSection() {
   return within(section as HTMLElement);
 }
 
+function recentSection() {
+  const section = document.querySelector("#recent");
+  if (!section) throw new Error("Recent section not found");
+  return within(section as HTMLElement);
+}
+
 function clickAppLaunch(appTitle: string) {
   const link = appsSection().getByRole("link", {
     name: `${appTitle}を開く`,
@@ -61,7 +66,9 @@ describe("Medical AI Console v3", () => {
 
     expect(await screen.findByText("Medical AI Console")).toBeInTheDocument();
     expect(screen.getByLabelText("Dashboard")).toBeInTheDocument();
-    expect(screen.getByText("Quick Actions")).toBeInTheDocument();
+    expect(screen.getByText("Today's Guide")).toBeInTheDocument();
+    expect(screen.getByText("Recent")).toBeInTheDocument();
+    expect(screen.getByText("Favorites")).toBeInTheDocument();
     expect(screen.getByText("Applications")).toBeInTheDocument();
     expect(appsSection().getByText("感染症・抗菌薬初期選択支援")).toBeInTheDocument();
   });
@@ -162,7 +169,7 @@ describe("Medical AI Console v3", () => {
     expect(recent[0].id).toBe("fever-crp");
   });
 
-  it("keeps Recent in latest-first order and limits it to five apps", async () => {
+  it("keeps Recent in latest-first order and limits it to three apps", async () => {
     renderConsole();
     await screen.findByText("Applications");
 
@@ -186,30 +193,30 @@ describe("Medical AI Console v3", () => {
     );
   });
 
-  it("renders Quick Actions apps with correct launch links", async () => {
+  it("does not render the removed Quick Actions section or launch cards", async () => {
     renderConsole();
-    const quick = within(await screen.findByLabelText("Quick Actions"));
 
-    expect(quick.getByText("感染症支援")).toBeInTheDocument();
-    expect(quick.getByText("発熱診断")).toBeInTheDocument();
-    expect(quick.getByText("糖尿病")).toBeInTheDocument();
-    expect(quick.getByText("TachyScan")).toBeInTheDocument();
-    expect(quick.getByText("神経診察")).toBeInTheDocument();
-    expect(quick.getByText("甲状腺")).toBeInTheDocument();
+    expect(await screen.findByText("Medical AI Console")).toBeInTheDocument();
+    expect(screen.queryByText("Quick Actions")).not.toBeInTheDocument();
+    expect(screen.queryByText("Tap to launch")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Quick Actions")).not.toBeInTheDocument();
+    expect(document.querySelector("#quick-actions")).not.toBeInTheDocument();
     expect(
-      quick.getByRole("link", {
-        name: "発熱診断をQuick Actionsから開く",
+      screen.queryByRole("link", {
+        name: /Quick Actionsから開く/,
       }),
-    ).toHaveAttribute("href", "https://fever-diagnostic-assistant.vercel.app/");
+    ).not.toBeInTheDocument();
   });
 
-  it("updates Recent when launching from Quick Actions", async () => {
+  it("launches apps from search results and records Recent", async () => {
     renderConsole();
-    const quick = within(await screen.findByLabelText("Quick Actions"));
+    fireEvent.change(await screen.findByLabelText("タイトル、説明、カテゴリ、タグでアプリを検索"), {
+      target: { value: "発熱" },
+    });
 
     fireEvent.click(
-      quick.getByRole("link", {
-        name: "発熱診断をQuick Actionsから開く",
+      appsSection().getByRole("link", {
+        name: "発熱・CRP診断支援を開く",
       }),
     );
 
@@ -217,7 +224,7 @@ describe("Medical AI Console v3", () => {
     expect(recent[0].id).toBe("fever-crp");
   });
 
-  it("places favorite apps at the top of Quick Actions", async () => {
+  it("launches apps from Favorites and records Recent", async () => {
     renderConsole();
     const favoriteButton = await appsSection().findByRole("button", {
       name: "甲状腺クリーゼ診断支援をFavoriteに追加",
@@ -225,10 +232,42 @@ describe("Medical AI Console v3", () => {
 
     fireEvent.click(favoriteButton);
 
-    const quickLinks = within(screen.getByLabelText("Quick Actions")).getAllByRole(
-      "link",
+    fireEvent.click(
+      favoritesSection().getByRole("link", {
+        name: "甲状腺クリーゼ診断支援を開く",
+      }),
     );
-    expect(quickLinks[0]).toHaveAccessibleName("甲状腺をQuick Actionsから開く");
+
+    const recent = JSON.parse(window.localStorage.getItem(RECENT_KEY) ?? "[]");
+    expect(recent[0].id).toBe("thyroid-crisis");
+  });
+
+  it("launches apps from Recent and keeps them deduplicated", async () => {
+    renderConsole();
+    await screen.findByText("Applications");
+
+    clickAppLaunch("発熱・CRP診断支援");
+
+    fireEvent.click(
+      await recentSection().findByRole("link", {
+        name: "発熱・CRP診断支援をRecentから開く",
+      }),
+    );
+
+    const recent = JSON.parse(window.localStorage.getItem(RECENT_KEY) ?? "[]");
+    expect(recent).toHaveLength(1);
+    expect(recent[0].id).toBe("fever-crp");
+  });
+
+  it("keeps category catalog launch links available", async () => {
+    renderConsole();
+
+    expect(await screen.findByText("内科総合")).toBeInTheDocument();
+    expect(
+      appsSection().getByRole("link", {
+        name: "Bedside Edema Navigatorを開く",
+      }),
+    ).toHaveAttribute("href", "/bedside-edema");
   });
 
   it("renders four Dashboard widgets with the real app count and online state", async () => {
@@ -296,7 +335,6 @@ describe("Medical AI Console v3", () => {
   it("survives invalid JSON in localStorage", async () => {
     window.localStorage.setItem(FAVORITES_KEY, "{broken");
     window.localStorage.setItem(RECENT_KEY, "{broken");
-    window.localStorage.setItem(LAUNCH_COUNTS_KEY, "{broken");
 
     renderConsole();
 
@@ -337,7 +375,15 @@ describe("Medical AI Console v3", () => {
     expect(
       screen.getByText("各アプリ右上の★で診療開始セットに登録できます。"),
     ).toBeInTheDocument();
-    expect(screen.getByText("Quick Actions")).toBeInTheDocument();
+    expect(screen.getByText("Today's Guide")).toBeInTheDocument();
+    expect(screen.queryByText("Quick Actions")).not.toBeInTheDocument();
+  });
+
+  it("keeps the Medical Hub guide character in the header", async () => {
+    renderConsole();
+
+    expect(await screen.findByText("Medical AI Console")).toBeInTheDocument();
+    expect(document.querySelector('img[src*="guide-character"]')).toBeInTheDocument();
   });
 
   it("provides accessible search, favorite, and launch controls", async () => {

@@ -53,7 +53,6 @@ type ClinicalPearl = {
 export const VERSION = "v0.9";
 export const FAVORITES_KEY = "medical-ai-console:favorites";
 export const RECENT_KEY = "medical-ai-console:recent";
-export const LAUNCH_COUNTS_KEY = "medical-ai-console:launch-counts";
 
 export const categories: AppCategory[] = [
   { title: "感染症", description: "Infection" },
@@ -166,24 +165,6 @@ export const apps: AppItem[] = [
   },
 ];
 
-export const quickAccessIds = [
-  "infection-antibiotic",
-  "fever-crp",
-  "diabetes-treatment",
-  "tachyscan",
-  "neuro-localizer",
-  "thyroid-crisis",
-];
-
-export const quickActionLabels: Record<string, { title: string; icon: string }> = {
-  "infection-antibiotic": { title: "感染症支援", icon: "🦠" },
-  "fever-crp": { title: "発熱診断", icon: "🔥" },
-  "diabetes-treatment": { title: "糖尿病", icon: "🩸" },
-  tachyscan: { title: "TachyScan", icon: "⚡" },
-  "neuro-localizer": { title: "神経診察", icon: "🧠" },
-  "thyroid-crisis": { title: "甲状腺", icon: "🦋" },
-};
-
 export const popularTags = ["感染症", "発熱", "糖尿病", "敗血症", "神経"];
 
 export const todaysGuides = [
@@ -295,7 +276,7 @@ export function pickTodaysGuide(
 ) {
   if (guideData.length === 0) {
     return {
-      title: "必要な診療支援ツールをQuick Actionsから選択してください",
+      title: "Recent、Favorites、検索から必要な診療支援ツールを開いてください",
       appId: "infection-antibiotic",
     };
   }
@@ -527,39 +508,6 @@ const AppCard = memo(function AppCard({
   );
 });
 
-const QuickActionCard = memo(function QuickActionCard({
-  app,
-  onLaunch,
-}: {
-  app: AppItem;
-  onLaunch: (appId: string) => void;
-}) {
-  const quickLabel = quickActionLabels[app.id] ?? {
-    title: app.title,
-    icon: app.icon,
-  };
-
-  return (
-    <MedicalCard className="min-h-[72px] p-2 transition hover:border-cyan-200/35 hover:bg-cyan-950/25">
-      <a
-        href={app.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={`${quickLabel.title}をQuick Actionsから開く`}
-        onClick={() => onLaunch(app.id)}
-        className="grid h-full min-h-14 grid-cols-[auto_minmax(0,1fr)] items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
-      >
-        <span className="grid h-11 w-11 place-items-center rounded-xl border border-cyan-200/20 bg-cyan-300/10 text-lg">
-          {quickLabel.icon}
-        </span>
-        <p className="line-clamp-2 text-xs font-black leading-4 text-white">
-          {quickLabel.title}
-        </p>
-      </a>
-    </MedicalCard>
-  );
-});
-
 const RecentListItem = memo(function RecentListItem({
   app,
   usedAt,
@@ -591,7 +539,6 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
   const [recent, setRecent] = useState<StoredApp[]>([]);
-  const [launchCounts, setLaunchCounts] = useState<Record<string, number>>({});
   const [storageReady, setStorageReady] = useState(false);
   const [pearl, setPearl] = useState<ClinicalPearl>(clinicalPearls[0]);
   const [todaysGuide, setTodaysGuide] = useState(todaysGuides[0]);
@@ -606,12 +553,6 @@ export default function Home() {
       );
       setRecent(
         safeParse<StoredApp[]>(safeGetLocalStorageItem(RECENT_KEY), []),
-      );
-      setLaunchCounts(
-        safeParse<Record<string, number>>(
-          safeGetLocalStorageItem(LAUNCH_COUNTS_KEY),
-          {},
-        ),
       );
       setPearl(pickClinicalPearl());
       setTodaysGuide(pickTodaysGuide());
@@ -639,22 +580,6 @@ export default function Home() {
         .slice(0, 3),
     [recent],
   );
-
-  const quickActionApps = useMemo(() => {
-    const favoriteSet = new Set(favorites);
-    const favoriteQuickApps = favorites.map(getAppById).filter(isAppItem);
-    const defaultQuickApps = quickAccessIds
-      .filter((id) => !favoriteSet.has(id))
-      .map(getAppById)
-      .filter(isAppItem)
-      .sort(
-        (a, b) =>
-          (launchCounts[b.id] ?? 0) - (launchCounts[a.id] ?? 0) ||
-          quickAccessIds.indexOf(a.id) - quickAccessIds.indexOf(b.id),
-      );
-
-    return [...favoriteQuickApps, ...defaultQuickApps].slice(0, 6);
-  }, [favorites, launchCounts]);
 
   const filteredApps = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -689,12 +614,6 @@ export default function Home() {
       safeSetLocalStorageItem(RECENT_KEY, JSON.stringify(next));
       return next;
     });
-
-    setLaunchCounts((current) => {
-      const next = { ...current, [appId]: (current[appId] ?? 0) + 1 };
-      safeSetLocalStorageItem(LAUNCH_COUNTS_KEY, JSON.stringify(next));
-      return next;
-    });
   }, []);
 
   return (
@@ -722,19 +641,6 @@ export default function Home() {
         <div className="grid justify-items-end gap-1 text-[10px] font-black">
           <MedicalBadge>{VERSION}</MedicalBadge>
           <span className="text-emerald-300">● Online</span>
-        </div>
-      </section>
-
-      <section
-        id="quick-actions"
-        aria-label="Quick Actions"
-        className="grid gap-2 scroll-mt-4"
-      >
-        <MedicalSectionHeader title="Quick Actions" description="Tap to launch" />
-        <div className="grid grid-cols-2 gap-2">
-          {quickActionApps.map((app) => (
-            <QuickActionCard key={app.id} app={app} onLaunch={recordLaunch} />
-          ))}
         </div>
       </section>
 
