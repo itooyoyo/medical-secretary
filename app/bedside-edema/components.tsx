@@ -222,7 +222,6 @@ export default function EdemaNavigator() {
             imageAlt="白い未来的装甲の浮腫診療AIナビゲーター"
             title="診療ガイド"
           >
-            <p>浮腫診療を開始します。</p>
             <p>まず浮腫の分布を選択してください。</p>
             <p>必要な項目のみ表示します。</p>
           </MedicalGuide>
