@@ -20,7 +20,11 @@ describe("Bedside Edema Navigator", () => {
 
   it("shows the new character and home copy", () => {
     render(<EdemaNavigator />);
-    expect(screen.getAllByRole("img", { name: "白い未来的装甲の浮腫診療AIナビゲーター" }).length).toBeGreaterThan(0);
+    const guides = screen.getAllByRole("img", { name: "白い未来的装甲の浮腫診療AIナビゲーター" });
+    expect(guides.length).toBeGreaterThan(0);
+    expect(guides[0]).toHaveAttribute("src", expect.stringContaining("edema-guide-mascot.png"));
+    expect(guides[0]).not.toHaveAttribute("src", expect.stringContaining("edema-ai-guide.png"));
+    expect(screen.getByText("INTERNAL MEDICINE · 60 SEC")).toBeInTheDocument();
     expect(screen.getByText("まず浮腫の分布を選択してください。")).toBeInTheDocument();
     expect(screen.getByText("必要な項目のみ表示します。")).toBeInTheDocument();
     expect(screen.getByText("身体診察と最小限の検査から浮腫を鑑別します")).toBeInTheDocument();

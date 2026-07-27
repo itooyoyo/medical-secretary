@@ -112,7 +112,7 @@ function EvidenceResult({
   return (
     <div className="station-results-stack">
       <MedicalGuide
-        imageSrc="/edema-ai-guide.png"
+        imageSrc="/edema-guide-mascot.png"
         imageAlt="白い未来的装甲の浮腫診療AIナビゲーター"
         title="診療ガイド"
         tone="result"
@@ -212,13 +212,13 @@ export default function EdemaNavigator() {
 
         <MedicalCard className="station-hero">
           <div className="station-hero-copy">
-            <MedicalBadge>GENERAL PRACTICE · 60 SEC</MedicalBadge>
+            <MedicalBadge>INTERNAL MEDICINE · 60 SEC</MedicalBadge>
             <h1>Bedside Edema<br />Navigator</h1>
             <p>身体診察と最小限の検査から浮腫を鑑別します</p>
           </div>
           <MedicalGuide
             className="station-hero-guide"
-            imageSrc="/edema-ai-guide.png"
+            imageSrc="/edema-guide-mascot.png"
             imageAlt="白い未来的装甲の浮腫診療AIナビゲーター"
             title="診療ガイド"
           >
@@ -240,7 +240,7 @@ export default function EdemaNavigator() {
             {redFlagCount > 0 && (
               <div className="station-character-alert">
                 <MedicalGuide
-                  imageSrc="/edema-ai-guide.png"
+                  imageSrc="/edema-guide-mascot.png"
                   imageAlt="白い未来的装甲の浮腫診療AIナビゲーター"
                   title="緊急診療ガイド"
                   tone="warning"
