@@ -56,9 +56,24 @@ export const evidenceSources: EvidenceSource[] = [
     usedFor: "リンパ浮腫の臨床診断、病期による圧痕性から非圧痕性への変化",
     url: "https://pubmed.ncbi.nlm.nih.gov/29908550/",
   },
+  {
+    id: "ata-thyroid-tests",
+    title: "Thyroid Function Tests",
+    publisher: "American Thyroid Association",
+    year: 2024,
+    usedFor: "TSHとFT4の組み合わせによる原発性・中枢性甲状腺機能低下症の判定",
+    url: "https://www.thyroid.org/thyroid-function-tests/",
+  },
+  {
+    id: "aafp-hypothyroidism-2021",
+    title: "Hypothyroidism: Diagnosis and Treatment",
+    publisher: "American Family Physician",
+    year: 2021,
+    usedFor: "顕性・潜在性・中枢性の分類、身体所見、潜在性を過大評価しない評価",
+    url: "https://www.aafp.org/pubs/afp/issues/2021/0515/p605.html",
+  },
 ];
 
 export const sourceMap = Object.fromEntries(
   evidenceSources.map((source) => [source.id, source]),
 );
-

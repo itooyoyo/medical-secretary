@@ -7,6 +7,7 @@ import {
   calculateWells,
   differentialRules,
   interpretBnp,
+  interpretThyroid,
 } from "./algorithm";
 
 describe("Bedside Edema Navigator", () => {
@@ -53,6 +54,22 @@ describe("Bedside Edema Navigator", () => {
     expect(screen.getByText("全身うっ血所見（複数選択）")).toBeInTheDocument();
     expect(screen.getByLabelText("BNP")).toBeInTheDocument();
     expect(screen.queryByLabelText("D-dimer")).not.toBeInTheDocument();
+  });
+
+  it("shows only three focused thyroid findings when a trigger is present", () => {
+    render(<EdemaNavigator />);
+    expect(screen.queryByText("甲状腺機能低下症を支持する所見（複数選択）")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /圧痕なし/ }));
+    expect(screen.getByText("甲状腺機能低下症を支持する所見（複数選択）")).toBeInTheDocument();
+    for (const label of ["寒がり", "皮膚乾燥", "徐脈"]) {
+      expect(screen.getByRole("button", { name: new RegExp(label) })).toBeInTheDocument();
+    }
+  });
+
+  it("asks for both TSH and FT4 when only one is entered", () => {
+    render(<EdemaNavigator />);
+    fireEvent.change(screen.getByLabelText("TSH"), { target: { value: "8" } });
+    expect(screen.getByText("甲状腺機能の判定にはTSHとFT4の両方が必要です")).toBeInTheDocument();
   });
 
   it("renders structured results rather than a diagnosis name alone", () => {
@@ -129,6 +146,93 @@ describe("Bedside Edema Navigator", () => {
     const result = interpretBnp({});
     expect(result.status).toBe("unmeasured");
     expect(result.detail).toContain("陰性ではありません");
+  });
+
+  it("classifies high TSH and low FT4 as overt primary hypothyroidism", () => {
+    expect(interpretThyroid({ tsh: 18.4, ft4: 0.52 }).status).toBe("overt-primary");
+  });
+
+  it("classifies high TSH and normal FT4 as subclinical hypothyroidism", () => {
+    const result = interpretThyroid({ tsh: 8, ft4: 1.1 });
+    expect(result.status).toBe("subclinical");
+    expect(result.detail).toContain("浮腫の主因とは判断できません");
+  });
+
+  it("does not label subclinical hypothyroidism as strongly suspected", () => {
+    expect(interpretThyroid({ tsh: 8, ft4: 1.1 }).label).not.toContain("強く");
+  });
+
+  it("considers central hypothyroidism for low FT4 with low or inappropriately normal TSH", () => {
+    expect(interpretThyroid({ tsh: 0.2, ft4: 0.5 }).status).toBe("central-possible");
+    expect(interpretThyroid({ tsh: 2, ft4: 0.5 }).status).toBe("central-possible");
+  });
+
+  it("does not support hypothyroidism when both tests are in the facility ranges", () => {
+    expect(interpretThyroid({
+      tsh: 2,
+      ft4: 1.2,
+      tshLowerLimit: 0.5,
+      tshUpperLimit: 4,
+      ft4LowerLimit: 0.9,
+      ft4UpperLimit: 1.7,
+    }).status).toBe("not-supportive");
+  });
+
+  it("does not treat unmeasured TSH as normal", () => {
+    expect(interpretThyroid({ ft4: 1.1 }).status).toBe("incomplete");
+  });
+
+  it("does not treat unmeasured FT4 as normal", () => {
+    expect(interpretThyroid({ tsh: 8 }).status).toBe("incomplete");
+  });
+
+  it("does not classify overt or subclinical disease from TSH alone", () => {
+    const result = interpretThyroid({ tsh: 18 });
+    expect(["overt-primary", "subclinical"]).not.toContain(result.status);
+  });
+
+  it("does not classify primary hypothyroidism from FT4 alone", () => {
+    expect(interpretThyroid({ ft4: 0.5 }).status).toBe("incomplete");
+  });
+
+  it("ranks overt hypothyroidism higher with nonpitting and eyelid edema", () => {
+    const result = buildDifferential(
+      { pitting: "absent", eyelid: "present", distribution: "generalized" },
+      { tsh: 18.4, ft4: 0.52 },
+    );
+    expect(result[0].id).toBe("hypothyroidism");
+  });
+
+  it("does not over-rank subclinical hypothyroidism with bilateral pitting edema alone", () => {
+    const result = buildDifferential(
+      { pitting: "present", bilateral: "present", distribution: "bilateral" },
+      { tsh: 8, ft4: 1.1 },
+    );
+    expect(result[0].id).not.toBe("hypothyroidism");
+  });
+
+  it("prioritizes acute inflammatory or DVT causes over thyroid in acute unilateral inflammation", () => {
+    const result = buildDifferential({
+      "history-1": "present",
+      unilateral: "present",
+      distribution: "unilateral",
+      erythema: "present",
+      temperature: "warm",
+      tenderness: "present",
+    });
+    expect(["acute-inflammatory", "acute-unilateral-dvt"]).toContain(result[0].id);
+    expect(result[0].id).not.toBe("hypothyroidism");
+  });
+
+  it("assigns thyroid sourceIds to the hypothyroidism rule", () => {
+    const thyroid = differentialRules.find((rule) => rule.id === "hypothyroidism");
+    expect(thyroid?.sourceIds).toEqual(expect.arrayContaining(["ata-thyroid-tests", "aafp-hypothyroidism-2021"]));
+  });
+
+  it("renders thyroid references", () => {
+    render(<ReferencesPage />);
+    expect(screen.getByText("Thyroid Function Tests")).toBeInTheDocument();
+    expect(screen.getByText("Hypothyroidism: Diagnosis and Treatment")).toBeInTheDocument();
   });
 
   it("assigns sourceIds to every differential rule", () => {

@@ -19,6 +19,7 @@ import {
   interpretAlbumin,
   interpretBnp,
   interpretCrp,
+  interpretThyroid,
   type Answers,
   type LabValues,
   type WellsInput,
@@ -108,6 +109,17 @@ function EvidenceResult({
   const bnp = interpretBnp(labs);
   const albumin = interpretAlbumin(labs.albumin);
   const crp = interpretCrp(labs.crp);
+  const thyroid = interpretThyroid(labs);
+  const thyroidEntered = labs.tsh != null || labs.ft4 != null;
+  const thyroidPhysicalSupport = [
+    answers.pitting === "absent" ? "非圧痕性浮腫" : "",
+    answers.face === "present" ? "顔面腫脹" : "",
+    answers.eyelid === "present" ? "眼瞼腫脹" : "",
+    answers.distribution === "generalized" ? "全身性浮腫" : "",
+    answers["thyroid-cold"] === "present" ? "寒がり" : "",
+    answers["thyroid-dry-skin"] === "present" ? "皮膚乾燥" : "",
+    answers["thyroid-bradycardia"] === "present" ? "徐脈" : "",
+  ].filter(Boolean);
 
   return (
     <div className="station-results-stack">
@@ -121,6 +133,20 @@ function EvidenceResult({
           ? `現時点では「${top.name}」を支持する所見が最も多いです。未確認所見を埋めて再評価してください。`
           : "まだ支持所見が十分ではありません。未確認の身体所見から確認しましょう。"}
       </MedicalGuide>
+
+      {thyroidEntered && (
+        <MedicalAlert
+          title={`甲状腺機能：${thyroid.label}`}
+          tone={thyroid.status === "overt-primary" || thyroid.status === "central-possible" ? "warning" : "info"}
+        >
+          <p>{thyroid.detail}</p>
+          {labs.tsh != null && labs.ft4 != null && (
+            <p>根拠：TSH {labs.tsh} μIU/mL、FT4 {labs.ft4} ng/dL{thyroidPhysicalSupport.length ? `、${thyroidPhysicalSupport.join("、")}` : ""}</p>
+          )}
+          <p>次に確認：施設基準範囲、抗TPO抗体、薬剤歴、下垂体疾患の可能性、必要時は内分泌内科への相談</p>
+          {thyroid.usesDefaultRanges && <p>施設基準値を確認してください。</p>}
+        </MedicalAlert>
+      )}
 
       {(labs.bnp != null || labs.ntProBnp != null || labs.albumin != null || labs.crp != null) && (
         <div className="station-lab-summary">
@@ -172,6 +198,14 @@ export default function EdemaNavigator() {
   const isSystemic = distribution === "bilateral" || distribution === "generalized";
   const inflammatory = answers.erythema === "present" || answers.temperature === "warm" || answers.tenderness === "present";
   const redFlagCount = redFlags.filter((item) => answers[item.id] === "present").length;
+  const thyroidRanges = interpretThyroid(labs).ranges;
+  const showThyroidFindings =
+    answers.pitting === "absent" ||
+    answers.face === "present" ||
+    answers.eyelid === "present" ||
+    distribution === "generalized" ||
+    (labs.tsh != null && labs.tsh > thyroidRanges.tshUpper) ||
+    (labs.ft4 != null && labs.ft4 < thyroidRanges.ft4Lower);
   const visibleQuestionCount = 9 + (isUnilateral ? 3 : 0) + (isSystemic ? 1 : 0);
   const progress = Math.min(100, Math.round((new Set(touched).size / visibleQuestionCount) * 100));
   const wellsResult = calculateWells(wells);
@@ -377,6 +411,23 @@ export default function EdemaNavigator() {
                 />
               </div>
             )}
+
+            {showThyroidFindings && (
+              <div className="station-conditional" data-condition="thyroid">
+                <MedicalBadge>甲状腺所見を追加確認</MedicalBadge>
+                <ChoiceGroup
+                  label="甲状腺機能低下症を支持する所見（複数選択）"
+                  multiple
+                  selected={["thyroid-cold", "thyroid-dry-skin", "thyroid-bradycardia"].filter((id) => answers[id] === "present")}
+                  onSelect={(id) => toggle(id)}
+                  options={[
+                    { value: "thyroid-cold", label: "寒がり" },
+                    { value: "thyroid-dry-skin", label: "皮膚乾燥" },
+                    { value: "thyroid-bradycardia", label: "徐脈" },
+                  ]}
+                />
+              </div>
+            )}
           </MedicalCard>
         </section>
 
@@ -439,6 +490,16 @@ export default function EdemaNavigator() {
               {isUnilateral && <MedicalNumberInput label="D-dimer" unit="μg/mL" value={labs.dDimer} onChange={(dDimer) => setLabs({ ...labs, dDimer })} />}
               {isUnilateral && inflammatory && <MedicalNumberInput label="CRP" unit="mg/dL" value={labs.crp} onChange={(crp) => setLabs({ ...labs, crp })} />}
             </div>
+            <details className="station-wells">
+              <summary><span>甲状腺の施設基準値</span><b>詳細設定</b></summary>
+              <p>未入力時は暫定値を使用し、結果に施設基準値の確認を表示します。</p>
+              <div className="station-number-grid">
+                <MedicalNumberInput label="TSH 基準下限" unit="μIU/mL" value={labs.tshLowerLimit} onChange={(tshLowerLimit) => setLabs({ ...labs, tshLowerLimit })} />
+                <MedicalNumberInput label="TSH 基準上限" unit="μIU/mL" value={labs.tshUpperLimit} onChange={(tshUpperLimit) => setLabs({ ...labs, tshUpperLimit })} />
+                <MedicalNumberInput label="FT4 基準下限" unit="ng/dL" value={labs.ft4LowerLimit} onChange={(ft4LowerLimit) => setLabs({ ...labs, ft4LowerLimit })} />
+                <MedicalNumberInput label="FT4 基準上限" unit="ng/dL" value={labs.ft4UpperLimit} onChange={(ft4UpperLimit) => setLabs({ ...labs, ft4UpperLimit })} />
+              </div>
+            </details>
             {labs.albumin != null && labs.albumin < 3.5 && (
               <MedicalAlert title={interpretAlbumin(labs.albumin).label} tone="warning">{interpretAlbumin(labs.albumin).detail}</MedicalAlert>
             )}

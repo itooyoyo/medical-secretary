@@ -14,6 +14,10 @@ export type LabValues = {
   dDimer?: number;
   tsh?: number;
   ft4?: number;
+  tshLowerLimit?: number;
+  tshUpperLimit?: number;
+  ft4LowerLimit?: number;
+  ft4UpperLimit?: number;
 };
 
 export type WellsInput = {
@@ -45,6 +49,19 @@ export type LabInterpretation = {
   status: "unmeasured" | "low" | "intermediate" | "high" | "caution";
   label: string;
   detail: string;
+};
+
+export type ThyroidInterpretation = {
+  status: "unmeasured" | "incomplete" | "overt-primary" | "subclinical" | "central-possible" | "not-supportive" | "discordant";
+  label: string;
+  detail: string;
+  usesDefaultRanges: boolean;
+  ranges: {
+    tshLower: number;
+    tshUpper: number;
+    ft4Lower: number;
+    ft4Upper: number;
+  };
 };
 
 const present = (answers: Answers, id: string) =>
@@ -100,10 +117,89 @@ export function interpretCrp(value?: number): LabInterpretation {
   return { status: "low", label: "著明上昇なし", detail: "局所所見が強ければ感染症を除外できません" };
 }
 
+const defaultThyroidRanges = {
+  tshLower: 0.4,
+  tshUpper: 4.5,
+  ft4Lower: 0.8,
+  ft4Upper: 1.8,
+};
+
+export function interpretThyroid(labs: LabValues): ThyroidInterpretation {
+  const ranges = {
+    tshLower: labs.tshLowerLimit ?? defaultThyroidRanges.tshLower,
+    tshUpper: labs.tshUpperLimit ?? defaultThyroidRanges.tshUpper,
+    ft4Lower: labs.ft4LowerLimit ?? defaultThyroidRanges.ft4Lower,
+    ft4Upper: labs.ft4UpperLimit ?? defaultThyroidRanges.ft4Upper,
+  };
+  const usesDefaultRanges = [
+    labs.tshLowerLimit,
+    labs.tshUpperLimit,
+    labs.ft4LowerLimit,
+    labs.ft4UpperLimit,
+  ].some((value) => value == null);
+  const common = { usesDefaultRanges, ranges };
+
+  if (labs.tsh == null && labs.ft4 == null) {
+    return { ...common, status: "unmeasured", label: "未測定", detail: "未測定は正常を意味しません" };
+  }
+  if (labs.tsh == null || labs.ft4 == null) {
+    return {
+      ...common,
+      status: "incomplete",
+      label: "判定に必要な検査が不足",
+      detail: "甲状腺機能の判定にはTSHとFT4の両方が必要です",
+    };
+  }
+
+  const tshHigh = labs.tsh > ranges.tshUpper;
+  const tshInRange = labs.tsh >= ranges.tshLower && labs.tsh <= ranges.tshUpper;
+  const ft4Low = labs.ft4 < ranges.ft4Lower;
+  const ft4InRange = labs.ft4 >= ranges.ft4Lower && labs.ft4 <= ranges.ft4Upper;
+
+  if (tshHigh && ft4Low) {
+    return {
+      ...common,
+      status: "overt-primary",
+      label: "顕性甲状腺機能低下症を強く疑う",
+      detail: "TSH高値かつFT4低値です。身体所見と合わせて浮腫への関与を評価します",
+    };
+  }
+  if (tshHigh && ft4InRange) {
+    return {
+      ...common,
+      status: "subclinical",
+      label: "潜在性甲状腺機能低下症の可能性",
+      detail: "FT4は正常範囲であり、これだけで浮腫の主因とは判断できません",
+    };
+  }
+  if (ft4Low && labs.tsh <= ranges.tshUpper) {
+    return {
+      ...common,
+      status: "central-possible",
+      label: "中枢性甲状腺機能低下症の可能性",
+      detail: "FT4低値に対してTSHが低値または不適切正常です。確定診断ではありません",
+    };
+  }
+  if (tshInRange && ft4InRange) {
+    return {
+      ...common,
+      status: "not-supportive",
+      label: "検査上、甲状腺機能低下症は支持されません",
+      detail: "TSH、FT4とも入力された施設基準範囲内です",
+    };
+  }
+  return {
+    ...common,
+    status: "discordant",
+    label: "甲状腺機能検査が非典型パターン",
+    detail: "薬剤、重症疾患、測定干渉を含めて施設基準範囲と再確認してください",
+  };
+}
+
 type Rule = {
   id: string;
   name: string;
-  support: Array<[string, (answers: Answers, labs: LabValues) => boolean]>;
+  support: Array<[string, (answers: Answers, labs: LabValues) => boolean, number?]>;
   against?: Array<[string, (answers: Answers, labs: LabValues) => boolean]>;
   requiredChecks: string[];
   next: string;
@@ -215,12 +311,38 @@ export const differentialRules: Rule[] = [
     tests: "重症度に応じてCRP・血算・培養・画像（CRP単独で確定しない）",
     sourceIds: ["aafp-2022", "gasparis-2020"],
   },
+  {
+    id: "hypothyroidism",
+    name: "甲状腺機能低下症",
+    support: [
+      ["TSH高値＋FT4低値（顕性）", (_, l) => interpretThyroid(l).status === "overt-primary", 4],
+      ["FT4低値＋TSH低値／不適切正常（中枢性の可能性）", (_, l) => interpretThyroid(l).status === "central-possible", 2],
+      ["TSH高値＋FT4正常（潜在性）", (_, l) => interpretThyroid(l).status === "subclinical"],
+      ["非圧痕性浮腫", (a) => absent(a, "pitting")],
+      ["顔面・眼瞼腫脹", (a) => present(a, "face") || present(a, "eyelid")],
+      ["全身性浮腫", (a) => a.distribution === "generalized"],
+      ["寒がり", (a) => present(a, "thyroid-cold")],
+      ["皮膚乾燥", (a) => present(a, "thyroid-dry-skin")],
+      ["徐脈", (a) => present(a, "thyroid-bradycardia")],
+    ],
+    against: [
+      ["TSH・FT4とも施設基準範囲内", (_, l) => interpretThyroid(l).status === "not-supportive"],
+      ["急性片側性浮腫", (a) => present(a, "history-1") && present(a, "unilateral")],
+      ["発赤・熱感・強い圧痛", (a) => present(a, "erythema") || a.temperature === "warm" || present(a, "tenderness")],
+      ["DVTを強く示唆する所見", (a) => a["calf-difference"] === "large" && present(a, "tenderness")],
+    ],
+    requiredChecks: ["pitting", "face", "eyelid"],
+    next: "施設基準範囲、抗TPO抗体、薬剤歴、下垂体疾患の可能性を確認し、必要時に内分泌内科へ相談",
+    tests: "TSH・FT4を必ず組み合わせて評価。中枢性疑いでは下垂体機能、薬剤、重症疾患を確認",
+    sourceIds: ["ata-thyroid-tests", "aafp-hypothyroidism-2021", "aafp-2022"],
+  },
 ];
 
 export function buildDifferential(answers: Answers, labs: LabValues = {}): Differential[] {
   return differentialRules
     .map((rule) => {
-      const support = rule.support.filter(([, test]) => test(answers, labs)).map(([label]) => label);
+      const matchedSupport = rule.support.filter(([, test]) => test(answers, labs));
+      const support = matchedSupport.map(([label]) => label);
       const against = (rule.against ?? []).filter(([, test]) => test(answers, labs)).map(([label]) => label);
       const missing = rule.requiredChecks
         .filter((id) => answers[id] == null || answers[id] === "unknown")
@@ -233,7 +355,7 @@ export function buildDifferential(answers: Answers, labs: LabValues = {}): Diffe
       return {
         id: rule.id,
         name: rule.name,
-        score: support.length * 2 + branchBoost - against.length * 2,
+        score: matchedSupport.reduce((score, [, , weight = 1]) => score + weight * 2, 0) + branchBoost - against.length * 2,
         support,
         against,
         missing,
