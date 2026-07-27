@@ -7,14 +7,14 @@
 .station-topbar > div span { margin-top: 2px; color: #486578; font-size: 7px; letter-spacing: .12em; }
 .station-topbar > .mk-badge { justify-self: end; }
 .station-container > .mk-progress { position: sticky; z-index: 20; top: 0; margin: 2px -4px 12px; padding: 10px 12px; border: 1px solid rgba(128,244,255,.1); border-radius: 12px; background: rgba(3,12,27,.87); backdrop-filter: blur(16px); }
-.station-hero { min-height: 520px; overflow: hidden; }
+.station-hero { min-height: 430px; overflow: hidden; }
 .station-hero::after { position: absolute; inset: 0; pointer-events: none; content: ""; background: linear-gradient(90deg, rgba(4,13,28,.4), transparent 60%); }
-.station-hero-copy { position: relative; z-index: 3; width: calc(100% - 250px); padding: clamp(34px,5vw,52px); }
+.station-hero-copy { position: relative; z-index: 3; width: calc(100% - 170px); padding: clamp(34px,5vw,52px); }
 .station-hero h1 { margin-top: 17px; font-size: clamp(36px,7vw,64px); line-height: .95; letter-spacing: -.06em; }
 .station-hero-copy > p { max-width: 390px; margin-top: 18px; color: #a9c4d4; font-size: clamp(12px,2vw,15px); line-height: 1.7; }
-.station-hero-guide { position: absolute; z-index: 4; inset: auto 24px 0 42px; min-height: 250px; grid-template-columns: minmax(0,1fr) 250px; pointer-events: none; }
+.station-hero-guide { position: absolute; z-index: 4; inset: auto 24px 0 42px; min-height: 210px; grid-template-columns: minmax(0,1fr) 165px; pointer-events: none; }
 .station-hero-guide .mk-guide-bubble { max-width: 430px; align-self: end; margin-bottom: 32px; pointer-events: auto; }
-.station-hero-guide .mk-guide-character { width: 250px; height: 410px; }
+.station-hero-guide .mk-guide-character { width: 165px; height: 270px; }
 .station-hero-guide .mk-guide-character img { filter: drop-shadow(0 18px 24px rgba(0,0,0,.52)) drop-shadow(0 0 18px rgba(86,217,235,.2)); }
 .station-hero-guide p + p { margin-top: 2px; }
 .station-section { padding-top: 68px; scroll-margin-top: 58px; }
@@ -76,13 +76,13 @@
 @media (max-width: 650px) {
   .station-container { padding-inline: 10px; }
   .station-topbar > div b { font-size: 8px; }
-  .station-hero { min-height: 510px; }
-  .station-hero-copy { width: calc(100% - 108px); padding: 24px 18px 0; }
+  .station-hero { min-height: 450px; }
+  .station-hero-copy { width: calc(100% - 72px); padding: 24px 18px 0; }
   .station-hero h1 { font-size: clamp(31px,10.3vw,40px); }
   .station-hero-copy > p { max-width: 220px; font-size: 10px; }
-  .station-hero-guide { inset: auto 10px 0 16px; min-height: 300px; grid-template-columns: minmax(0,1fr) 145px; }
-  .station-hero-guide .mk-guide-bubble { z-index: 2; margin: 0 -24px 26px 0; padding: 11px 12px; }
-  .station-hero-guide .mk-guide-character { width: 145px; height: 300px; }
+  .station-hero-guide { inset: auto 10px 0 16px; min-height: 220px; grid-template-columns: minmax(0,1fr) 96px; }
+  .station-hero-guide .mk-guide-bubble { z-index: 2; margin: 0 -14px 24px 0; padding: 11px 12px; }
+  .station-hero-guide .mk-guide-character { width: 96px; height: 198px; }
   .station-choice-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .station-number-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .station-result-card dl { grid-template-columns: 1fr; }
