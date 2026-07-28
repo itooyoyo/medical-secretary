@@ -145,7 +145,7 @@ export const apps: AppItem[] = [
   },
   {
     id: "electrolyte",
-    title: "電解質異常診断支援",
+    title: "電解質異常診断支援（Na・K）",
     url: "https://electrolyte-diagnostic-assistant.vercel.app/",
     icon: "🧪",
     category: "救急",

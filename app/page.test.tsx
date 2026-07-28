@@ -67,6 +67,15 @@ describe("Medical AI Console v3", () => {
     );
   });
 
+  it("clarifies the electrolyte navigator title without changing its URL", () => {
+    const electrolyteApp = apps.find((app) => app.id === "electrolyte");
+
+    expect(electrolyteApp?.title).toBe("電解質異常診断支援（Na・K）");
+    expect(electrolyteApp?.url).toBe(
+      "https://electrolyte-diagnostic-assistant.vercel.app/",
+    );
+  });
+
   it("renders the app catalog and core dashboard areas", async () => {
     renderConsole();
 
