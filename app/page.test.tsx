@@ -76,6 +76,21 @@ describe("Medical AI Console v3", () => {
     );
   });
 
+  it("registers the Calcium Disorder Navigator in the emergency category", () => {
+    const calciumApp = apps.find((app) => app.id === "calcium-disorder");
+
+    expect(calciumApp).toMatchObject({
+      title: "電解質異常診断支援（Ca）",
+      subtitle: "Calcium Disorder Navigator",
+      category: "救急",
+      url: "https://electrolyte-diagnostic-assistant-ca.vercel.app/",
+      estimatedTime: "30秒",
+    });
+    expect(calciumApp?.tags).toEqual(
+      expect.arrayContaining(["Ca", "高Ca", "低Ca", "救急"]),
+    );
+  });
+
   it("renders the app catalog and core dashboard areas", async () => {
     renderConsole();
 

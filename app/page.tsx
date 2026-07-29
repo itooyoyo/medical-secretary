@@ -155,6 +155,18 @@ export const apps: AppItem[] = [
     tags: ["電解質", "Na", "K", "Ca"],
   },
   {
+    id: "calcium-disorder",
+    title: "電解質異常診断支援（Ca）",
+    subtitle: "Calcium Disorder Navigator",
+    url: "https://electrolyte-diagnostic-assistant-ca.vercel.app/",
+    icon: "◉",
+    category: "救急",
+    description: "補正Ca、症状、緊急度から初期対応と次の検査を30秒で整理。",
+    estimatedTime: "30秒",
+    badges: ["NEW"],
+    tags: ["電解質", "Ca", "高Ca", "低Ca", "救急"],
+  },
+  {
     id: "thyroid-crisis",
     title: "甲状腺クリーゼ診断支援",
     url: "https://thyroid-crisis-navigator.vercel.app/",
@@ -223,8 +235,8 @@ export const clinicalPearls: ClinicalPearl[] = [
 
 export const releaseNotes = {
   version: VERSION,
-  date: "2026-07-22",
-  changes: "トップページを余白中心に整理し、浮腫診断ナビの表示名を更新。",
+  date: "2026-07-29",
+  changes: "救急シリーズに電解質異常診断支援（Ca）を追加。",
 };
 
 export function safeParse<T>(value: string | null, fallback: T): T {
