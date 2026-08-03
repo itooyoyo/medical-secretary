@@ -34,6 +34,17 @@ type AppItem = {
   tags: string[];
 };
 
+export function resolvePublicAppUrl(value: string | undefined) {
+  if (!value) return "";
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:" || ["localhost", "127.0.0.1", "::1"].includes(url.hostname)) return "";
+    return url.toString();
+  } catch {
+    return "";
+  }
+}
+
 type AppCategory = {
   title: AppCategoryName;
   description: string;
@@ -109,6 +120,17 @@ export const apps: AppItem[] = [
     estimatedTime: "3分",
     badges: ["Stable"],
     tags: ["糖尿病", "薬剤選択", "SGLT2", "GLP-1"],
+  },
+  {
+    id: "ecg-diagnostic-support",
+    title: "心電図診断支援",
+    url: resolvePublicAppUrl(process.env.NEXT_PUBLIC_ECG_ASSISTANT_URL),
+    icon: "⌁",
+    category: "循環器",
+    description: "心電図画像と医師確認所見から、系統的読影、緊急所見、診断候補、次の対応を整理します。",
+    estimatedTime: "3分",
+    badges: [],
+    tags: ["心電図", "ECG", "系統的読影", "緊急度", "循環器"],
   },
   {
     id: "tachyscan",
@@ -483,12 +505,20 @@ const AppCard = memo(function AppCard({
       </button>
 
       <a
-        href={app.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={`${app.title}を開く`}
-        onClick={() => onLaunch(app.id)}
-        className="block pr-9 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
+        href={app.url || undefined}
+        target={app.url ? "_blank" : undefined}
+        rel={app.url ? "noopener noreferrer" : undefined}
+        aria-label={app.url ? `${app.title}を開く` : `${app.title}は準備中`}
+        aria-disabled={app.url ? undefined : true}
+        tabIndex={app.url ? undefined : -1}
+        onClick={(event) => {
+          if (!app.url) {
+            event.preventDefault();
+            return;
+          }
+          onLaunch(app.id);
+        }}
+        className={`block pr-9 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200 ${app.url ? "" : "cursor-not-allowed opacity-65"}`}
       >
         <div className="flex min-w-0 gap-2">
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-cyan-200/20 bg-cyan-300/10 text-base">
@@ -518,7 +548,7 @@ const AppCard = memo(function AppCard({
               {usedAt ? (
                 <span className="text-slate-500">{formatUsedAt(usedAt)}</span>
               ) : null}
-              <span>Launch →</span>
+              <span>{app.id === "ecg-diagnostic-support" ? (app.url ? "外部リンクで開く ↗" : "準備中") : "Launch →"}</span>
             </div>
           </div>
         </div>

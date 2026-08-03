@@ -9,6 +9,7 @@ import Home, {
   pickTodaysGuide,
   popularTags,
   releaseNotes,
+  resolvePublicAppUrl,
   safeParse,
 } from "./page";
 
@@ -89,6 +90,31 @@ describe("Medical AI Console v3", () => {
     expect(calciumApp?.tags).toEqual(
       expect.arrayContaining(["Ca", "高Ca", "低Ca", "救急"]),
     );
+  });
+
+  it("registers 心電図診断支援 next to the cardiology tools as preparing when URL is unset", async () => {
+    const ecgApp = apps.find((app) => app.id === "ecg-diagnostic-support");
+    expect(ecgApp).toMatchObject({
+      title: "心電図診断支援",
+      category: "循環器",
+      icon: "⌁",
+      description: "心電図画像と医師確認所見から、系統的読影、緊急所見、診断候補、次の対応を整理します。",
+      url: "",
+    });
+    expect(apps.indexOf(ecgApp!)).toBe(apps.findIndex((app) => app.id === "tachyscan") - 1);
+
+    renderConsole();
+    const card = appsSection().getByLabelText("心電図診断支援は準備中");
+    expect(card).toHaveAttribute("aria-disabled", "true");
+    expect(card).not.toHaveAttribute("href");
+    expect(appsSection().getByText("準備中")).toBeInTheDocument();
+  });
+
+  it("accepts only safe public HTTPS URLs for the ECG assistant", () => {
+    expect(resolvePublicAppUrl("https://ecg.example.org/app")).toBe("https://ecg.example.org/app");
+    expect(resolvePublicAppUrl("http://localhost:3000")).toBe("");
+    expect(resolvePublicAppUrl("https://127.0.0.1/app")).toBe("");
+    expect(resolvePublicAppUrl("not-a-url")).toBe("");
   });
 
   it("renders the app catalog and core dashboard areas", async () => {
