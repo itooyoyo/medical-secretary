@@ -548,7 +548,7 @@ const AppCard = memo(function AppCard({
               {usedAt ? (
                 <span className="text-slate-500">{formatUsedAt(usedAt)}</span>
               ) : null}
-              <span>{app.id === "ecg-diagnostic-support" ? (app.url ? "外部リンクで開く ↗" : "準備中") : "Launch →"}</span>
+              <span>{app.id === "ecg-diagnostic-support" ? (app.url ? "利用可能 · 外部リンクで開く ↗" : "準備中") : "Launch →"}</span>
             </div>
           </div>
         </div>

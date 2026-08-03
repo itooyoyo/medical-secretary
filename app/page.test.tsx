@@ -92,22 +92,29 @@ describe("Medical AI Console v3", () => {
     );
   });
 
-  it("registers 心電図診断支援 next to the cardiology tools as preparing when URL is unset", async () => {
+  it("registers 心電図診断支援 next to the cardiology tools with environment-controlled availability", async () => {
     const ecgApp = apps.find((app) => app.id === "ecg-diagnostic-support");
     expect(ecgApp).toMatchObject({
       title: "心電図診断支援",
       category: "循環器",
       icon: "⌁",
       description: "心電図画像と医師確認所見から、系統的読影、緊急所見、診断候補、次の対応を整理します。",
-      url: "",
     });
     expect(apps.indexOf(ecgApp!)).toBe(apps.findIndex((app) => app.id === "tachyscan") - 1);
 
     renderConsole();
-    const card = appsSection().getByLabelText("心電図診断支援は準備中");
-    expect(card).toHaveAttribute("aria-disabled", "true");
-    expect(card).not.toHaveAttribute("href");
-    expect(appsSection().getByText("準備中")).toBeInTheDocument();
+    if (ecgApp?.url) {
+      const card = appsSection().getByRole("link", { name: "心電図診断支援を開く" });
+      expect(card).toHaveAttribute("href", "https://ecg-diagnostic-assistant.vercel.app/");
+      expect(card).toHaveAttribute("target", "_blank");
+      expect(card).toHaveAttribute("rel", "noopener noreferrer");
+      expect(appsSection().getByText("利用可能 · 外部リンクで開く ↗")).toBeInTheDocument();
+    } else {
+      const card = appsSection().getByLabelText("心電図診断支援は準備中");
+      expect(card).toHaveAttribute("aria-disabled", "true");
+      expect(card).not.toHaveAttribute("href");
+      expect(appsSection().getByText("準備中")).toBeInTheDocument();
+    }
   });
 
   it("accepts only safe public HTTPS URLs for the ECG assistant", () => {
