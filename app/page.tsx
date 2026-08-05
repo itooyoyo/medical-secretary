@@ -29,6 +29,7 @@ type AppItem = {
   icon: string;
   category: AppCategoryName;
   description: string;
+  notice?: string;
   estimatedTime: string;
   badges: BadgeStatus[];
   tags: string[];
@@ -124,10 +125,12 @@ export const apps: AppItem[] = [
   {
     id: "ecg-diagnostic-support",
     title: "心電図診断支援",
+    subtitle: "Version 2 · ローカルルールベース",
     url: resolvePublicAppUrl(process.env.NEXT_PUBLIC_ECG_ASSISTANT_URL),
     icon: "⌁",
     category: "循環器",
-    description: "心電図画像と医師確認所見から、系統的読影、緊急所見、診断候補、次の対応を整理します。",
+    description: "心電図画像を参照しながら所見を系統的に入力し、ルールに基づいて緊急所見、診断候補、判定理由、追加確認、追加検査、初期対応を整理します。",
+    notice: "利用時にPIN認証が必要です。外部AI解析サービスへ画像を送信しません。",
     estimatedTime: "3分",
     badges: [],
     tags: ["心電図", "ECG", "系統的読影", "緊急度", "循環器"],
@@ -543,6 +546,11 @@ const AppCard = memo(function AppCard({
             <p className="mt-0.5 line-clamp-1 text-[11px] font-semibold leading-4 text-slate-400">
               {app.description}
             </p>
+            {app.notice ? (
+              <p className="mt-0.5 line-clamp-1 text-[10px] font-semibold leading-4 text-cyan-100/70">
+                {app.notice}
+              </p>
+            ) : null}
             <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[11px] font-black text-cyan-200">
               <span>{app.estimatedTime}</span>
               {usedAt ? (
@@ -776,7 +784,7 @@ export default function Home() {
         </section>
       </div>
 
-      <section id="apps" className="grid gap-3 scroll-mt-4">
+      <section id="apps" className="grid min-w-0 gap-3 scroll-mt-4">
         <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_24rem] sm:items-end">
           <MedicalSectionHeader title="Applications" description="Compact catalog" />
           <MedicalSearchInput value={query} onChange={setQuery} />
@@ -807,12 +815,12 @@ export default function Home() {
               if (categoryApps.length === 0) return null;
 
               return (
-                <section key={category.title} className="grid gap-2">
+                <section key={category.title} className="grid min-w-0 gap-2">
                   <MedicalSectionHeader
                     title={category.title}
                     description={category.description}
                   />
-                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="grid min-w-0 gap-2 sm:grid-cols-2 lg:grid-cols-4">
                     {categoryApps.map((app) => (
                       <AppCard
                         key={app.id}

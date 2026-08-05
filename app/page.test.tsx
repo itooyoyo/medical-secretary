@@ -96,9 +96,11 @@ describe("Medical AI Console v3", () => {
     const ecgApp = apps.find((app) => app.id === "ecg-diagnostic-support");
     expect(ecgApp).toMatchObject({
       title: "心電図診断支援",
+      subtitle: "Version 2 · ローカルルールベース",
       category: "循環器",
       icon: "⌁",
-      description: "心電図画像と医師確認所見から、系統的読影、緊急所見、診断候補、次の対応を整理します。",
+      description: "心電図画像を参照しながら所見を系統的に入力し、ルールに基づいて緊急所見、診断候補、判定理由、追加確認、追加検査、初期対応を整理します。",
+      notice: "利用時にPIN認証が必要です。外部AI解析サービスへ画像を送信しません。",
     });
     expect(apps.indexOf(ecgApp!)).toBe(apps.findIndex((app) => app.id === "tachyscan") - 1);
 
@@ -109,6 +111,8 @@ describe("Medical AI Console v3", () => {
       expect(card).toHaveAttribute("target", "_blank");
       expect(card).toHaveAttribute("rel", "noopener noreferrer");
       expect(appsSection().getByText("利用可能 · 外部リンクで開く ↗")).toBeInTheDocument();
+      expect(appsSection().getByText("Version 2 · ローカルルールベース")).toBeInTheDocument();
+      expect(appsSection().getByText("利用時にPIN認証が必要です。外部AI解析サービスへ画像を送信しません。")).toBeInTheDocument();
     } else {
       const card = appsSection().getByLabelText("心電図診断支援は準備中");
       expect(card).toHaveAttribute("aria-disabled", "true");
