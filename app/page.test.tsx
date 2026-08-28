@@ -81,7 +81,7 @@ describe("Medical AI Console v3", () => {
     const abdominalPainApp = apps.find((app) => app.id === "abdominal-pain");
 
     expect(abdominalPainApp).toMatchObject({
-      title: "腹痛鑑別支援ツール",
+      title: "腹痛鑑別支援",
       category: "内科総合",
       url: "https://abdominal-pain-diagnostic-assistant.vercel.app/",
       estimatedTime: "3分",
@@ -152,14 +152,14 @@ describe("Medical AI Console v3", () => {
     expect(screen.getByText("Favorites")).toBeInTheDocument();
     expect(screen.getByText("Applications")).toBeInTheDocument();
     expect(appsSection().getByText("感染症・抗菌薬初期選択支援")).toBeInTheDocument();
-    expect(appsSection().getByText("腹痛鑑別支援ツール")).toBeInTheDocument();
+    expect(appsSection().getByText("腹痛鑑別支援")).toBeInTheDocument();
   });
 
   it("opens the abdominal pain assistant as a safe external link", () => {
     renderConsole();
 
     const card = appsSection().getByRole("link", {
-      name: "腹痛鑑別支援ツールを開く",
+      name: "腹痛鑑別支援を開く",
     });
     expect(card).toHaveAttribute(
       "href",

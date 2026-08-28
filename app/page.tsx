@@ -113,7 +113,7 @@ export const apps: AppItem[] = [
   },
   {
     id: "abdominal-pain",
-    title: "腹痛鑑別支援ツール",
+    title: "腹痛鑑別支援",
     url: "https://abdominal-pain-diagnostic-assistant.vercel.app/",
     icon: "🩺",
     category: "内科総合",
