@@ -77,6 +77,20 @@ describe("Medical AI Console v3", () => {
     );
   });
 
+  it("registers the abdominal pain assistant in general medicine with its production URL", () => {
+    const abdominalPainApp = apps.find((app) => app.id === "abdominal-pain");
+
+    expect(abdominalPainApp).toMatchObject({
+      title: "腹痛鑑別支援ツール",
+      category: "内科総合",
+      url: "https://abdominal-pain-diagnostic-assistant.vercel.app/",
+      estimatedTime: "3分",
+    });
+    expect(apps.indexOf(abdominalPainApp!)).toBe(
+      apps.findIndex((app) => app.id === "fever-crp") + 1,
+    );
+  });
+
   it("registers the Calcium Disorder Navigator in the emergency category", () => {
     const calciumApp = apps.find((app) => app.id === "calcium-disorder");
 
@@ -138,6 +152,21 @@ describe("Medical AI Console v3", () => {
     expect(screen.getByText("Favorites")).toBeInTheDocument();
     expect(screen.getByText("Applications")).toBeInTheDocument();
     expect(appsSection().getByText("感染症・抗菌薬初期選択支援")).toBeInTheDocument();
+    expect(appsSection().getByText("腹痛鑑別支援ツール")).toBeInTheDocument();
+  });
+
+  it("opens the abdominal pain assistant as a safe external link", () => {
+    renderConsole();
+
+    const card = appsSection().getByRole("link", {
+      name: "腹痛鑑別支援ツールを開く",
+    });
+    expect(card).toHaveAttribute(
+      "href",
+      "https://abdominal-pain-diagnostic-assistant.vercel.app/",
+    );
+    expect(card).toHaveAttribute("target", "_blank");
+    expect(card).toHaveAttribute("rel", "noopener noreferrer");
   });
 
   it("searches by title", async () => {

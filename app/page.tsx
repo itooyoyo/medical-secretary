@@ -112,6 +112,17 @@ export const apps: AppItem[] = [
     tags: ["発熱", "CRP", "FUO", "Red Flag"],
   },
   {
+    id: "abdominal-pain",
+    title: "腹痛鑑別支援ツール",
+    url: "https://abdominal-pain-diagnostic-assistant.vercel.app/",
+    icon: "🩺",
+    category: "内科総合",
+    description: "腹痛の部位と臨床所見から、鑑別候補と次の確認を整理。",
+    estimatedTime: "3分",
+    badges: ["NEW"],
+    tags: ["腹痛", "鑑別診断", "問診", "内科総合"],
+  },
+  {
     id: "diabetes-treatment",
     title: "糖尿病治療薬選択支援",
     url: "https://diabetes-treatment-assistant.vercel.app/",
