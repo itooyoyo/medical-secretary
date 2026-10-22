@@ -556,6 +556,419 @@ button:disabled {
   }
 }
 
+/* Step 6 only: diagnostic results in the Medical AI Console theme. */
+.tachy-result-screen {
+  --result-bg: #06182c;
+  --result-panel: #0c2037;
+  --result-panel-strong: #102840;
+  --result-text: #ffffff;
+  --result-muted: #bfd0df;
+  --result-orange: #ff9d45;
+  --result-cyan: #50c7dd;
+  --result-line: #25415c;
+  position: relative;
+  background-color: var(--result-bg);
+  background-image:
+    linear-gradient(rgba(80, 199, 221, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(80, 199, 221, 0.035) 1px, transparent 1px);
+  background-size: 28px 28px;
+  scroll-padding-bottom: calc(88px + env(safe-area-inset-bottom));
+}
+
+.tachy-result-screen::before {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(180deg, rgba(6, 24, 44, 0.08), rgba(6, 24, 44, 0.9));
+  content: "";
+  pointer-events: none;
+}
+
+.tachy-result-shell {
+  position: relative;
+  z-index: 1;
+  max-width: 1000px;
+  padding-bottom: calc(160px + env(safe-area-inset-bottom));
+}
+
+.tachy-result-screen .result-screen-header {
+  grid-template-columns: 1fr;
+  gap: 18px;
+  min-height: 0;
+  padding: 8px 0 22px;
+  border-bottom-color: var(--result-line);
+}
+
+.tachy-result-screen .first-screen-brand-icon {
+  border-color: rgba(255, 157, 69, 0.6);
+  background: rgba(255, 157, 69, 0.12);
+  color: var(--result-orange);
+}
+
+.tachy-result-screen .first-screen-brand p,
+.tachy-result-screen .first-screen-progress > div:first-child span {
+  color: var(--result-orange);
+}
+
+.tachy-result-screen .first-screen-brand h1 {
+  margin: 0;
+  color: var(--result-text);
+  font-size: 1.45rem;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.tachy-result-screen .first-screen-brand span:not(.first-screen-brand-icon),
+.tachy-result-screen .first-screen-progress strong {
+  color: var(--result-muted);
+}
+
+.tachy-result-screen .first-screen-progress-track {
+  background: #18334d;
+}
+
+.tachy-result-screen .first-screen-progress-track span {
+  background: var(--result-orange);
+}
+
+.tachy-result-screen .result-screen-header .guide-wrap {
+  grid-template-columns: 56px minmax(0, 1fr);
+  align-items: center;
+  justify-items: start;
+  gap: 10px;
+  animation: guideFade 260ms ease-out both;
+}
+
+.tachy-result-screen .result-screen-header .guide-wrap img {
+  width: 56px;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.28));
+}
+
+.tachy-result-screen .result-screen-header .guide-bubble {
+  width: 100%;
+  border: 1px solid var(--result-line);
+  border-radius: 12px;
+  background: rgba(12, 32, 55, 0.94);
+  padding: 12px 14px;
+  box-shadow: none;
+}
+
+.tachy-result-screen .result-screen-header .guide-bubble::before {
+  top: 50%;
+  left: -6px;
+  border-bottom: 1px solid var(--result-line);
+  border-left: 1px solid var(--result-line);
+  background: #0c2037;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.tachy-result-screen .result-screen-header .guide-bubble strong {
+  color: var(--result-cyan);
+  font-size: 0.8rem;
+}
+
+.tachy-result-screen .result-screen-header .guide-bubble span {
+  color: var(--result-text);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.tachy-result-screen .result-screen-content {
+  margin-top: 22px;
+}
+
+.tachy-result-screen .result-screen-content > div,
+.tachy-result-screen .result-screen-content > aside {
+  min-width: 0;
+}
+
+.tachy-result-screen .step-intro {
+  padding-bottom: 16px;
+  border-bottom-color: var(--result-line);
+}
+
+.tachy-result-screen .step-intro p {
+  color: var(--result-orange);
+  font-size: 0.86rem;
+}
+
+.tachy-result-screen .step-intro h2 {
+  color: var(--result-text);
+  font-size: clamp(1.65rem, 7vw, 2rem);
+}
+
+.tachy-result-screen .step-intro > span {
+  color: var(--result-muted);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.65;
+}
+
+.tachy-result-screen .refreshed-result-card,
+.tachy-result-screen .result-screen-content .input-card,
+.tachy-result-screen .result-screen-content .clinical-pearl {
+  border: 1px solid var(--result-line);
+  border-radius: 14px;
+  background: var(--result-panel);
+  color: var(--result-text);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+}
+
+.tachy-result-screen .refreshed-result-card {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  scroll-margin-bottom: calc(96px + env(safe-area-inset-bottom));
+}
+
+.tachy-result-screen .result-urgency {
+  display: flex;
+  min-height: 72px;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgba(255, 157, 69, 0.7);
+  border-left-width: 4px;
+  border-radius: 12px;
+  background: rgba(255, 157, 69, 0.1);
+  padding: 12px 14px;
+}
+
+.tachy-result-screen .result-urgency.high,
+.tachy-result-screen .result-urgency.critical {
+  border-color: #ef4444;
+  background: rgba(127, 29, 29, 0.32);
+}
+
+.tachy-result-screen .result-urgency-icon {
+  display: grid;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 2px solid var(--result-orange);
+  border-radius: 50%;
+  color: var(--result-orange);
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.tachy-result-screen .result-urgency.high .result-urgency-icon,
+.tachy-result-screen .result-urgency.critical .result-urgency-icon {
+  border-color: #f87171;
+  color: #fecaca;
+}
+
+.tachy-result-screen .result-urgency p {
+  margin: 0 0 2px;
+  color: var(--result-muted);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.tachy-result-screen .result-urgency strong {
+  color: var(--result-orange);
+  font-size: 1.2rem;
+  line-height: 1.35;
+}
+
+.tachy-result-screen .result-urgency.high strong,
+.tachy-result-screen .result-urgency.critical strong {
+  color: #fecaca;
+}
+
+.tachy-result-screen .result-diagnosis {
+  padding: 4px 2px 2px;
+}
+
+.tachy-result-screen .result-diagnosis .card-label,
+.tachy-result-screen .result-screen-content .clinical-pearl .section-label {
+  color: var(--result-orange);
+}
+
+.tachy-result-screen .result-diagnosis h2 {
+  margin-top: 7px;
+  color: var(--result-text);
+  font-size: clamp(1.45rem, 7vw, 2rem);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.tachy-result-screen .result-block,
+.tachy-result-screen .result-detail-card {
+  min-width: 0;
+  border: 1px solid var(--result-line);
+  border-radius: 12px;
+  background: #091c31;
+  padding: 16px;
+}
+
+.tachy-result-screen .result-actions {
+  border-left: 4px solid var(--result-orange);
+  background: var(--result-panel-strong);
+}
+
+.tachy-result-screen .result-block h3,
+.tachy-result-screen .result-detail-card h3 {
+  margin-bottom: 10px;
+  color: var(--result-orange);
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+.tachy-result-screen .result-block li,
+.tachy-result-screen .result-detail-card p {
+  color: var(--result-text);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+
+.tachy-result-screen .result-block li::marker {
+  color: var(--result-orange);
+}
+
+.tachy-result-screen .result-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.tachy-result-screen .result-note {
+  margin: 0;
+  border: 1px solid #ef4444;
+  border-left-width: 4px;
+  border-radius: 12px;
+  background: #32141f;
+  color: #ffffff;
+  padding: 14px 16px;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.65;
+}
+
+.tachy-result-screen .result-screen-content .summary-list dt,
+.tachy-result-screen .result-screen-content .card-label {
+  color: var(--result-muted);
+}
+
+.tachy-result-screen .result-screen-content .summary-list div {
+  border-bottom-color: var(--result-line);
+}
+
+.tachy-result-screen .result-screen-content .summary-list dd,
+.tachy-result-screen .result-screen-content .clinical-pearl p:not(.section-label),
+.tachy-result-screen .result-screen-content .clinical-pearl li {
+  color: var(--result-text);
+}
+
+.tachy-result-screen .result-screen-content .clinical-pearl {
+  background: #14263a;
+}
+
+.tachy-result-screen .result-screen-alert {
+  margin-top: 18px;
+  border: 2px solid #ef4444;
+  border-radius: 14px;
+  background: #32141f;
+  color: var(--result-text);
+  padding: 16px;
+  box-shadow: 0 14px 34px rgba(239, 68, 68, 0.12);
+}
+
+.tachy-result-screen .result-screen-alert .section-label,
+.tachy-result-screen .result-screen-alert h2 {
+  color: #fca5a5;
+}
+
+.tachy-result-screen .result-screen-alert .section-label::before {
+  margin-right: 6px;
+  content: "!";
+}
+
+.tachy-result-screen .result-screen-alert p:last-child {
+  color: var(--result-text);
+  font-size: 1rem;
+}
+
+.tachy-result-screen .result-screen-nav {
+  grid-template-columns: 1fr 0.9fr 1.35fr;
+  gap: 8px;
+  border-top-color: var(--result-line);
+  background: rgba(6, 24, 44, 0.97);
+  padding: 10px max(12px, env(safe-area-inset-left)) calc(10px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-right));
+}
+
+.tachy-result-screen .result-screen-nav button {
+  min-height: 52px;
+  border: 1px solid var(--result-line);
+  border-radius: 12px;
+  background: var(--result-panel);
+  color: var(--result-text);
+  font-size: 1rem;
+}
+
+.tachy-result-screen .result-screen-nav button:disabled {
+  border-color: #19334c;
+  background: #0a1b2f;
+  color: #698096;
+  opacity: 1;
+}
+
+.tachy-result-screen .result-screen-nav button:focus-visible {
+  outline: 3px solid rgba(80, 199, 221, 0.45);
+  outline-offset: 2px;
+}
+
+@media (min-width: 720px) {
+  .tachy-result-shell {
+    padding-bottom: calc(104px + env(safe-area-inset-bottom));
+  }
+
+  .tachy-result-screen .result-screen-header {
+    grid-template-columns: minmax(0, 1fr) minmax(250px, 0.72fr);
+    align-items: end;
+    gap: 28px;
+    padding-top: 18px;
+  }
+
+  .tachy-result-screen .refreshed-result-card {
+    padding: 22px;
+  }
+
+  .tachy-result-screen .result-grid {
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  }
+
+  .tachy-result-screen .result-screen-nav {
+    border-color: var(--result-line);
+  }
+}
+
+@media (max-width: 390px) {
+  .tachy-result-screen .result-screen-header .guide-wrap {
+    grid-template-columns: 50px minmax(0, 1fr);
+  }
+
+  .tachy-result-screen .result-screen-header .guide-wrap img {
+    width: 50px;
+  }
+
+  .tachy-result-screen .refreshed-result-card {
+    padding: 14px;
+  }
+
+  .tachy-result-screen .result-block,
+  .tachy-result-screen .result-detail-card {
+    padding: 14px;
+  }
+
+  .tachy-result-screen .result-screen-nav {
+    grid-template-columns: 0.9fr 0.9fr 1.2fr;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -563,5 +976,1117 @@ button:disabled {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* Step 0 only: Medical AI Console treatment-room theme. */
+.tachy-first-screen {
+  --first-bg: #06182c;
+  --first-panel: #0c2037;
+  --first-selected: #102840;
+  --first-text: #ffffff;
+  --first-muted: #a4b8ca;
+  --first-orange: #ff9d45;
+  --first-cyan: #50c7dd;
+  --first-line: #25415c;
+  position: relative;
+  scroll-padding-bottom: calc(88px + env(safe-area-inset-bottom));
+  background-color: var(--first-bg);
+  background-image:
+    linear-gradient(rgba(80, 199, 221, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(80, 199, 221, 0.035) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.tachy-first-screen::before {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(180deg, rgba(6, 24, 44, 0.08), rgba(6, 24, 44, 0.88));
+  content: "";
+  pointer-events: none;
+}
+
+.tachy-first-shell {
+  position: relative;
+  z-index: 1;
+  max-width: 760px;
+  padding-bottom: calc(160px + env(safe-area-inset-bottom));
+}
+
+.tachy-first-screen .first-screen-header {
+  grid-template-columns: 1fr;
+  gap: 18px;
+  min-height: 0;
+  padding: 8px 0 22px;
+  border-bottom-color: var(--first-line);
+}
+
+.first-screen-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.first-screen-brand-icon {
+  display: grid;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 1px solid rgba(255, 157, 69, 0.6);
+  border-radius: 12px;
+  background: rgba(255, 157, 69, 0.12);
+  color: var(--first-orange);
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.first-screen-brand p,
+.first-screen-brand h1,
+.first-screen-brand span {
+  overflow-wrap: anywhere;
+}
+
+.first-screen-brand p {
+  margin: 0 0 2px;
+  color: var(--first-orange);
+  font-size: 0.78rem;
+  font-weight: 900;
+  line-height: 1.3;
+}
+
+.tachy-first-screen .first-screen-brand h1 {
+  margin: 0;
+  color: var(--first-text);
+  font-size: 1.45rem;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.first-screen-brand span:not(.first-screen-brand-icon) {
+  display: block;
+  margin-top: 3px;
+  color: var(--first-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.first-screen-progress {
+  margin-top: 18px;
+}
+
+.first-screen-progress > div:first-child {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 9px;
+}
+
+.first-screen-progress span,
+.first-screen-progress strong {
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.first-screen-progress > div:first-child span {
+  color: var(--first-orange);
+  font-weight: 900;
+}
+
+.first-screen-progress strong {
+  color: var(--first-muted);
+}
+
+.first-screen-progress-track {
+  height: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #18334d;
+}
+
+.first-screen-progress-track span {
+  display: block;
+  width: 16.6667%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--first-orange);
+}
+
+.tachy-first-screen .first-screen-header .guide-wrap {
+  grid-template-columns: 56px minmax(0, 1fr);
+  align-items: center;
+  justify-items: start;
+  gap: 10px;
+  animation: guideFade 260ms ease-out both;
+}
+
+.tachy-first-screen .first-screen-header .guide-wrap img {
+  width: 56px;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.28));
+}
+
+.tachy-first-screen .first-screen-header .guide-bubble {
+  width: 100%;
+  border: 1px solid var(--first-line);
+  border-radius: 12px;
+  background: rgba(12, 32, 55, 0.94);
+  padding: 12px 14px;
+  box-shadow: none;
+}
+
+.tachy-first-screen .first-screen-header .guide-bubble::before {
+  top: 50%;
+  left: -6px;
+  border-bottom: 1px solid var(--first-line);
+  border-left: 1px solid var(--first-line);
+  background: #0c2037;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.tachy-first-screen .first-screen-header .guide-bubble strong {
+  color: var(--first-cyan);
+  font-size: 0.8rem;
+}
+
+.tachy-first-screen .first-screen-header .guide-bubble span {
+  color: var(--first-text);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.tachy-first-screen .first-screen-content {
+  display: block;
+  margin-top: 22px;
+}
+
+.tachy-first-screen .first-screen-content > div {
+  width: 100%;
+}
+
+.tachy-first-screen .first-screen-content > aside {
+  display: none;
+}
+
+.tachy-first-screen .first-screen-intro {
+  padding-bottom: 16px;
+  border-bottom-color: var(--first-line);
+}
+
+.tachy-first-screen .first-screen-intro p {
+  color: var(--first-orange);
+  font-size: 0.86rem;
+}
+
+.tachy-first-screen .first-screen-intro h2 {
+  color: var(--first-text);
+  font-size: clamp(1.65rem, 7vw, 2rem);
+}
+
+.tachy-first-screen .first-screen-intro > span {
+  color: #bfd0df;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.65;
+}
+
+.tachy-first-screen .first-screen-card {
+  border: 1px solid var(--first-line);
+  border-radius: 14px;
+  background: var(--first-panel);
+  color: var(--first-text);
+  padding: 16px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+}
+
+.tachy-first-screen .first-screen-card .field-group + .field-group {
+  margin-top: 24px;
+  padding-top: 22px;
+  border-top: 1px solid var(--first-line);
+}
+
+.tachy-first-screen .first-screen-card .field-title {
+  margin-bottom: 12px;
+  color: var(--first-text);
+  font-size: 1rem;
+}
+
+.tachy-first-screen .first-screen-card .choice-grid {
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.tachy-first-screen .first-screen-pulse-group .choice-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.tachy-first-screen .first-screen-card .choice {
+  position: relative;
+  display: flex;
+  min-height: 60px;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--first-line);
+  border-radius: 12px;
+  background: #0a1c31;
+  color: var(--first-text);
+  padding: 14px 16px;
+  font-size: 1.08rem;
+  font-weight: 800;
+  line-height: 1.45;
+  scroll-margin-bottom: calc(88px + env(safe-area-inset-bottom));
+}
+
+.tachy-first-screen .first-screen-pulse-group .choice {
+  min-width: 0;
+  min-height: 60px;
+  gap: 8px;
+  padding: 12px;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.tachy-first-screen .first-screen-pulse-group .choice::before {
+  display: grid;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  content: "";
+}
+
+.tachy-first-screen .first-screen-card .choice::after {
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: var(--first-muted);
+  content: "○";
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.tachy-first-screen .first-screen-card .choice.danger::before {
+  display: grid;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border: 1px solid #f87171;
+  border-radius: 50%;
+  color: #fecaca;
+  content: "!";
+  font-size: 0.85rem;
+  font-weight: 900;
+}
+
+.tachy-first-screen .first-screen-pulse-group .choice.danger::before {
+  flex-basis: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+.tachy-first-screen .first-screen-card .choice:hover {
+  border-color: #3f6587;
+  background: #0e253e;
+}
+
+.tachy-first-screen .first-screen-card .choice:focus-visible {
+  outline: 3px solid rgba(80, 199, 221, 0.38);
+  outline-offset: 2px;
+}
+
+.tachy-first-screen .first-screen-card .choice.selected {
+  border-color: var(--first-orange);
+  background: var(--first-selected);
+  color: var(--first-text);
+  box-shadow: inset 3px 0 0 var(--first-orange);
+}
+
+.tachy-first-screen .first-screen-card .choice.selected::after {
+  color: var(--first-orange);
+  content: "✓";
+  font-weight: 900;
+}
+
+.tachy-first-screen .first-screen-card .choice.danger.selected {
+  border-color: var(--first-orange);
+  background: var(--first-selected);
+  color: var(--first-text);
+  box-shadow: inset 3px 0 0 var(--first-orange);
+}
+
+.tachy-first-screen .first-screen-card .choice.danger.selected::after {
+  color: var(--first-orange);
+}
+
+.tachy-first-screen .first-screen-alert {
+  margin-top: 18px;
+  border: 2px solid #ef4444;
+  border-radius: 14px;
+  background: #32141f;
+  color: var(--first-text);
+  padding: 16px;
+  box-shadow: 0 14px 34px rgba(239, 68, 68, 0.12);
+}
+
+.tachy-first-screen .first-screen-alert .section-label,
+.tachy-first-screen .first-screen-alert h2 {
+  color: #fca5a5;
+}
+
+.tachy-first-screen .first-screen-alert .section-label::before {
+  margin-right: 6px;
+  content: "!";
+}
+
+.tachy-first-screen .first-screen-alert p:last-child {
+  color: var(--first-text);
+  font-size: 1rem;
+}
+
+.tachy-first-screen .first-screen-nav {
+  grid-template-columns: 1fr 0.9fr 1.35fr;
+  gap: 8px;
+  border-top-color: var(--first-line);
+  background: rgba(6, 24, 44, 0.97);
+  padding: 10px max(12px, env(safe-area-inset-left)) calc(10px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-right));
+}
+
+.tachy-first-screen .first-screen-nav button {
+  min-height: 52px;
+  border: 1px solid var(--first-line);
+  border-radius: 12px;
+  background: var(--first-panel);
+  color: var(--first-text);
+  font-size: 1rem;
+}
+
+.tachy-first-screen .first-screen-nav button:last-child {
+  border-color: var(--first-orange);
+  background: var(--first-orange);
+  color: #241306;
+}
+
+.tachy-first-screen .first-screen-nav button:disabled {
+  border-color: #19334c;
+  background: #0a1b2f;
+  color: #698096;
+  opacity: 1;
+}
+
+.tachy-first-screen .first-screen-nav button:focus-visible {
+  outline: 3px solid rgba(80, 199, 221, 0.45);
+  outline-offset: 2px;
+}
+
+@media (min-width: 720px) {
+  .tachy-first-shell {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+
+  .tachy-first-screen .first-screen-header {
+    grid-template-columns: minmax(0, 1fr) minmax(250px, 0.72fr);
+    align-items: end;
+    gap: 28px;
+    padding-top: 18px;
+  }
+
+  .tachy-first-screen .first-screen-card {
+    padding: 22px;
+  }
+
+  .tachy-first-screen .first-screen-card .choice-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tachy-first-screen .first-screen-card .choice.full {
+    min-height: 64px;
+  }
+
+  .tachy-first-screen .first-screen-nav {
+    border-color: var(--first-line);
+  }
+}
+
+@media (max-width: 390px) {
+  .tachy-first-screen .first-screen-header {
+    grid-template-columns: 1fr;
+  }
+
+  .tachy-first-screen .first-screen-header .guide-wrap {
+    grid-template-columns: 50px minmax(0, 1fr);
+  }
+
+  .tachy-first-screen .first-screen-header .guide-wrap img {
+    width: 50px;
+  }
+
+  .tachy-first-screen .first-screen-card {
+    padding: 14px;
+  }
+
+  .tachy-first-screen .first-screen-pulse-group .choice {
+    gap: 6px;
+    padding: 10px;
+  }
+
+  .tachy-first-screen .first-screen-pulse-group .choice::after {
+    font-size: 1.05rem;
+  }
+
+  .tachy-first-screen .first-screen-nav {
+    grid-template-columns: 0.9fr 0.9fr 1.2fr;
+  }
+}
+
+/* Steps 2-5 only: continuation of the Medical AI Console assessment theme. */
+.tachy-guided-screen {
+  --guided-bg: #06182c;
+  --guided-panel: #0c2037;
+  --guided-selected: #102840;
+  --guided-text: #ffffff;
+  --guided-muted: #bfd0df;
+  --guided-orange: #ff9d45;
+  --guided-cyan: #50c7dd;
+  --guided-line: #25415c;
+  position: relative;
+  background-color: var(--guided-bg);
+  background-image:
+    linear-gradient(rgba(80, 199, 221, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(80, 199, 221, 0.035) 1px, transparent 1px);
+  background-size: 28px 28px;
+  scroll-padding-bottom: calc(88px + env(safe-area-inset-bottom));
+}
+
+.tachy-guided-screen::before {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(180deg, rgba(6, 24, 44, 0.08), rgba(6, 24, 44, 0.88));
+  content: "";
+  pointer-events: none;
+}
+
+.tachy-guided-shell {
+  position: relative;
+  z-index: 1;
+  max-width: 1000px;
+  padding-bottom: calc(160px + env(safe-area-inset-bottom));
+}
+
+.tachy-guided-screen .guided-screen-header {
+  grid-template-columns: 1fr;
+  gap: 18px;
+  min-height: 0;
+  padding: 8px 0 22px;
+  border-bottom-color: var(--guided-line);
+}
+
+.tachy-guided-screen .first-screen-brand-icon {
+  border-color: rgba(255, 157, 69, 0.6);
+  background: rgba(255, 157, 69, 0.12);
+  color: var(--guided-orange);
+}
+
+.tachy-guided-screen .first-screen-brand p,
+.tachy-guided-screen .first-screen-progress > div:first-child span {
+  color: var(--guided-orange);
+}
+
+.tachy-guided-screen .first-screen-brand h1 {
+  margin: 0;
+  color: var(--guided-text);
+  font-size: 1.45rem;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.tachy-guided-screen .first-screen-brand span:not(.first-screen-brand-icon),
+.tachy-guided-screen .first-screen-progress strong {
+  color: var(--guided-muted);
+}
+
+.tachy-guided-screen .first-screen-progress-track {
+  background: #18334d;
+}
+
+.tachy-guided-screen .first-screen-progress-track span {
+  background: var(--guided-orange);
+}
+
+.tachy-guided-screen .guided-screen-header .guide-wrap {
+  grid-template-columns: 56px minmax(0, 1fr);
+  align-items: center;
+  justify-items: start;
+  gap: 10px;
+  animation: guideFade 260ms ease-out both;
+}
+
+.tachy-guided-screen .guided-screen-header .guide-wrap img {
+  width: 56px;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.28));
+}
+
+.tachy-guided-screen .guided-screen-header .guide-bubble {
+  width: 100%;
+  border: 1px solid var(--guided-line);
+  border-radius: 12px;
+  background: rgba(12, 32, 55, 0.94);
+  padding: 12px 14px;
+  box-shadow: none;
+}
+
+.tachy-guided-screen .guided-screen-header .guide-bubble::before {
+  top: 50%;
+  left: -6px;
+  border-bottom: 1px solid var(--guided-line);
+  border-left: 1px solid var(--guided-line);
+  background: #0c2037;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.tachy-guided-screen .guided-screen-header .guide-bubble strong {
+  color: var(--guided-cyan);
+  font-size: 0.8rem;
+}
+
+.tachy-guided-screen .guided-screen-header .guide-bubble span {
+  color: var(--guided-text);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.tachy-guided-screen .guided-screen-content {
+  margin-top: 22px;
+}
+
+.tachy-guided-screen .guided-screen-content > div,
+.tachy-guided-screen .guided-screen-content > aside {
+  min-width: 0;
+}
+
+.tachy-guided-screen .step-intro {
+  padding-bottom: 16px;
+  border-bottom-color: var(--guided-line);
+}
+
+.tachy-guided-screen .step-intro p {
+  color: var(--guided-orange);
+  font-size: 0.86rem;
+}
+
+.tachy-guided-screen .step-intro h2 {
+  color: var(--guided-text);
+  font-size: clamp(1.65rem, 7vw, 2rem);
+}
+
+.tachy-guided-screen .step-intro > span {
+  color: var(--guided-muted);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.65;
+}
+
+.tachy-guided-screen .guided-screen-content .input-card,
+.tachy-guided-screen .guided-screen-content .clinical-pearl {
+  border: 1px solid var(--guided-line);
+  border-radius: 14px;
+  background: var(--guided-panel);
+  color: var(--guided-text);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+}
+
+.tachy-guided-screen .guided-screen-card {
+  padding: 16px;
+}
+
+.tachy-guided-screen .guided-screen-card .field-group + .field-group {
+  margin-top: 24px;
+  padding-top: 22px;
+  border-top: 1px solid var(--guided-line);
+}
+
+.tachy-guided-screen .guided-screen-card .field-title {
+  margin-bottom: 12px;
+  color: var(--guided-text);
+  font-size: 1rem;
+}
+
+.tachy-guided-screen .guided-screen-card .choice-grid {
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.tachy-guided-screen .guided-screen-card .rhythm-choice-grid,
+.tachy-guided-screen .guided-screen-card .vt-duration-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.tachy-guided-screen .guided-screen-card .choice {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 60px;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--guided-line);
+  border-radius: 12px;
+  background: #0a1c31;
+  color: var(--guided-text);
+  padding: 14px 16px;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  scroll-margin-bottom: calc(88px + env(safe-area-inset-bottom));
+}
+
+.tachy-guided-screen .guided-screen-card .choice::after {
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: var(--guided-muted);
+  content: "○";
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.tachy-guided-screen .guided-screen-card .choice.danger::before {
+  display: grid;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border: 1px solid #f87171;
+  border-radius: 50%;
+  color: #fecaca;
+  content: "!";
+  font-size: 0.85rem;
+  font-weight: 900;
+}
+
+.tachy-guided-screen .guided-screen-card .choice:hover {
+  border-color: #3f6587;
+  background: #0e253e;
+}
+
+.tachy-guided-screen .guided-screen-card .choice:focus-visible,
+.tachy-guided-screen .guided-screen-card .number-input:focus-visible {
+  outline: 3px solid rgba(80, 199, 221, 0.42);
+  outline-offset: 2px;
+}
+
+.tachy-guided-screen .guided-screen-card .choice.selected,
+.tachy-guided-screen .guided-screen-card .choice.danger.selected {
+  border-color: var(--guided-orange);
+  background: var(--guided-selected);
+  color: var(--guided-text);
+  box-shadow: inset 3px 0 0 var(--guided-orange);
+}
+
+.tachy-guided-screen .guided-screen-card .choice.selected::after,
+.tachy-guided-screen .guided-screen-card .choice.danger.selected::after {
+  color: var(--guided-orange);
+  content: "✓";
+  font-weight: 900;
+}
+
+.tachy-guided-screen .number-input {
+  min-height: 64px;
+  border: 1px solid var(--guided-line);
+  border-radius: 12px;
+  background: #081a2e;
+  color: var(--guided-text);
+  padding: 14px 16px;
+  font-size: 1.25rem;
+  line-height: 1.4;
+  appearance: textfield;
+}
+
+.tachy-guided-screen .number-input::placeholder {
+  color: #7f96aa;
+}
+
+.tachy-guided-screen .number-input:focus {
+  border-color: var(--guided-orange);
+  background: #0a1f35;
+}
+
+.tachy-guided-screen .help-text {
+  color: var(--guided-muted);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.tachy-guided-screen .guided-screen-content .card-label,
+.tachy-guided-screen .guided-screen-content .summary-list dt {
+  color: var(--guided-muted);
+}
+
+.tachy-guided-screen .guided-screen-content .summary-list div {
+  border-bottom-color: var(--guided-line);
+}
+
+.tachy-guided-screen .guided-screen-content .summary-list dd,
+.tachy-guided-screen .guided-screen-content .clinical-pearl p:not(.section-label),
+.tachy-guided-screen .guided-screen-content .clinical-pearl li {
+  color: var(--guided-text);
+}
+
+.tachy-guided-screen .guided-screen-content .clinical-pearl {
+  background: #14263a;
+}
+
+.tachy-guided-screen .guided-screen-content .clinical-pearl .section-label {
+  color: var(--guided-orange);
+}
+
+.tachy-guided-screen .guided-screen-alert {
+  margin-top: 18px;
+  border: 2px solid #ef4444;
+  border-radius: 14px;
+  background: #32141f;
+  color: var(--guided-text);
+  padding: 16px;
+  box-shadow: 0 14px 34px rgba(239, 68, 68, 0.12);
+}
+
+.tachy-guided-screen .guided-screen-alert .section-label,
+.tachy-guided-screen .guided-screen-alert h2 {
+  color: #fca5a5;
+}
+
+.tachy-guided-screen .guided-screen-alert .section-label::before {
+  margin-right: 6px;
+  content: "!";
+}
+
+.tachy-guided-screen .guided-screen-alert p:last-child {
+  color: var(--guided-text);
+  font-size: 1rem;
+}
+
+.tachy-guided-screen .guided-screen-nav {
+  grid-template-columns: 1fr 0.9fr 1.35fr;
+  gap: 8px;
+  border-top-color: var(--guided-line);
+  background: rgba(6, 24, 44, 0.97);
+  padding: 10px max(12px, env(safe-area-inset-left)) calc(10px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-right));
+}
+
+.tachy-guided-screen .guided-screen-nav button {
+  min-height: 52px;
+  border: 1px solid var(--guided-line);
+  border-radius: 12px;
+  background: var(--guided-panel);
+  color: var(--guided-text);
+  font-size: 1rem;
+}
+
+.tachy-guided-screen .guided-screen-nav button:last-child {
+  border-color: var(--guided-orange);
+  background: var(--guided-orange);
+  color: #241306;
+}
+
+.tachy-guided-screen .guided-screen-nav button:disabled {
+  border-color: #19334c;
+  background: #0a1b2f;
+  color: #698096;
+  opacity: 1;
+}
+
+.tachy-guided-screen .guided-screen-nav button:focus-visible {
+  outline: 3px solid rgba(80, 199, 221, 0.45);
+  outline-offset: 2px;
+}
+
+@media (min-width: 720px) {
+  .tachy-guided-shell {
+    padding-bottom: calc(104px + env(safe-area-inset-bottom));
+  }
+
+  .tachy-guided-screen .guided-screen-header {
+    grid-template-columns: minmax(0, 1fr) minmax(250px, 0.72fr);
+    align-items: end;
+    gap: 28px;
+    padding-top: 18px;
+  }
+
+  .tachy-guided-screen .guided-screen-card {
+    padding: 22px;
+  }
+
+  .tachy-guided-screen .guided-screen-card .qrs-choice-grid,
+  .tachy-guided-screen .guided-screen-card .background-grid,
+  .tachy-guided-screen .guided-screen-card .vt-findings-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tachy-guided-screen .guided-screen-card .p-wave-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .tachy-guided-screen .guided-screen-nav {
+    border-color: var(--guided-line);
+  }
+}
+
+@media (max-width: 390px) {
+  .tachy-guided-screen .guided-screen-header {
+    grid-template-columns: 1fr;
+  }
+
+  .tachy-guided-screen .guided-screen-header .guide-wrap {
+    grid-template-columns: 50px minmax(0, 1fr);
+  }
+
+  .tachy-guided-screen .guided-screen-header .guide-wrap img {
+    width: 50px;
+  }
+
+  .tachy-guided-screen .guided-screen-card {
+    padding: 14px;
+  }
+
+  .tachy-guided-screen .guided-screen-card .rhythm-choice-grid,
+  .tachy-guided-screen .guided-screen-card .vt-duration-grid {
+    gap: 8px;
+  }
+
+  .tachy-guided-screen .guided-screen-card .rhythm-choice-grid .choice,
+  .tachy-guided-screen .guided-screen-card .vt-duration-grid .choice {
+    gap: 6px;
+    padding: 12px 10px;
+  }
+
+  .tachy-guided-screen .guided-screen-nav {
+    grid-template-columns: 0.9fr 0.9fr 1.2fr;
+  }
+}
+
+@media (max-width: 430px) {
+  .tachy-vt-screen .guided-screen-header {
+    gap: 12px;
+    padding-bottom: 16px;
+  }
+
+  .tachy-vt-screen .guided-screen-alert {
+    margin-top: 14px;
+  }
+
+  .tachy-vt-screen .guided-screen-content {
+    margin-top: 16px;
+  }
+
+  .tachy-vt-screen .vt-step-intro {
+    padding-bottom: 10px;
+  }
+
+  .tachy-vt-screen .vt-step-intro > span {
+    display: none;
+  }
+
+  .tachy-vt-screen .vt-screen-card {
+    padding-inline: 14px;
+  }
+
+  .tachy-vt-screen .vt-screen-card .choice-grid {
+    gap: 8px;
+  }
+
+  .tachy-vt-screen .vt-screen-card .choice {
+    min-height: 58px;
+    padding: 12px 14px;
+  }
+
+  .tachy-vt-screen .vt-screen-card .vt-duration-grid {
+    margin-top: 12px;
+  }
+}
+
+/* Landing screen only: compact Medical AI Console introduction. */
+.tachy-landing-screen {
+  --landing-bg: #06182c;
+  --landing-panel: #0c2037;
+  --landing-text: #ffffff;
+  --landing-muted: #bfd0df;
+  --landing-orange: #ff9d45;
+  --landing-cyan: #50c7dd;
+  --landing-line: #25415c;
+  position: relative;
+  background-color: var(--landing-bg);
+  background-image:
+    linear-gradient(rgba(80, 199, 221, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(80, 199, 221, 0.035) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.tachy-landing-screen::before {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(180deg, rgba(6, 24, 44, 0.08), rgba(6, 24, 44, 0.9));
+  content: "";
+  pointer-events: none;
+}
+
+.tachy-landing-shell {
+  position: relative;
+  z-index: 1;
+  max-width: 1000px;
+  padding-bottom: calc(32px + env(safe-area-inset-bottom));
+}
+
+.tachy-landing-screen .landing-screen-header {
+  grid-template-columns: 1fr;
+  align-content: start;
+  gap: 18px;
+  min-height: 0;
+  padding: 12px 0 22px;
+  border-bottom-color: var(--landing-line);
+}
+
+.tachy-landing-screen .landing-screen-header .hero-copy {
+  display: grid;
+  gap: 22px;
+}
+
+.tachy-landing-screen .first-screen-brand-icon {
+  border-color: rgba(255, 157, 69, 0.6);
+  background: rgba(255, 157, 69, 0.12);
+  color: var(--landing-orange);
+}
+
+.tachy-landing-screen .first-screen-brand p {
+  color: var(--landing-orange);
+}
+
+.tachy-landing-screen .first-screen-brand h1 {
+  margin: 0;
+  color: var(--landing-text);
+  font-size: 1.65rem;
+  font-weight: 900;
+  line-height: 1.3;
+}
+
+.tachy-landing-screen .first-screen-brand span:not(.first-screen-brand-icon) {
+  color: var(--landing-muted);
+}
+
+.tachy-landing-screen .landing-launch-copy {
+  padding-top: 18px;
+  border-top: 1px solid var(--landing-line);
+}
+
+.tachy-landing-screen .lead {
+  margin: 0 0 18px;
+  color: var(--landing-muted);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.7;
+}
+
+.tachy-landing-screen .primary-action {
+  width: 100%;
+  min-height: 58px;
+  border: 1px solid var(--landing-orange);
+  border-radius: 12px;
+  background: var(--landing-orange);
+  color: #241306;
+  padding: 14px 20px;
+  font-size: 1.05rem;
+  font-weight: 900;
+  box-shadow: 0 14px 28px rgba(255, 157, 69, 0.18);
+}
+
+.tachy-landing-screen .primary-action:hover {
+  background: #ffad66;
+}
+
+.tachy-landing-screen .primary-action:focus-visible {
+  outline: 3px solid rgba(80, 199, 221, 0.45);
+  outline-offset: 3px;
+}
+
+.tachy-landing-screen .landing-screen-header .guide-wrap {
+  grid-template-columns: 56px minmax(0, 1fr);
+  align-items: center;
+  justify-items: start;
+  gap: 10px;
+  animation: guideFade 260ms ease-out both;
+}
+
+.tachy-landing-screen .landing-screen-header .guide-wrap img {
+  width: 56px;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.28));
+}
+
+.tachy-landing-screen .landing-screen-header .guide-bubble {
+  width: 100%;
+  border: 1px solid var(--landing-line);
+  border-radius: 12px;
+  background: rgba(12, 32, 55, 0.94);
+  padding: 12px 14px;
+  box-shadow: none;
+}
+
+.tachy-landing-screen .landing-screen-header .guide-bubble::before {
+  top: 50%;
+  left: -6px;
+  border-bottom: 1px solid var(--landing-line);
+  border-left: 1px solid var(--landing-line);
+  background: var(--landing-panel);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.tachy-landing-screen .landing-screen-header .guide-bubble strong {
+  color: var(--landing-cyan);
+  font-size: 0.8rem;
+}
+
+.tachy-landing-screen .landing-screen-header .guide-bubble span {
+  color: var(--landing-text);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+@media (min-width: 720px) {
+  .tachy-landing-screen .landing-screen-header {
+    grid-template-columns: minmax(0, 1fr) minmax(250px, 0.72fr);
+    align-items: end;
+    gap: 28px;
+    padding-top: 18px;
+  }
+
+  .tachy-landing-screen .first-screen-brand h1 {
+    font-size: 1.8rem;
+  }
+
+  .tachy-landing-screen .primary-action {
+    width: auto;
+    min-width: 200px;
+  }
+}
+
+@media (max-width: 390px) {
+  .tachy-landing-screen .landing-screen-header .guide-wrap {
+    grid-template-columns: 50px minmax(0, 1fr);
+  }
+
+  .tachy-landing-screen .landing-screen-header .guide-wrap img {
+    width: 50px;
+  }
+
+  .tachy-landing-screen .first-screen-brand h1 {
+    font-size: 1.55rem;
   }
 }

@@ -220,30 +220,133 @@ export default function Home() {
   const goNext = () => setStep((current) => Math.min(5, current + 1));
   const goBack = () => setStep((current) => Math.max(0, current - 1));
   const currentMessage = started ? guideMessages[step] : "まず血行動態から確認しましょう。";
+  const isLanding = !started;
+  const isFirstAssessment = started && step === 0;
+  const isGuidedAssessment = started && step >= 1 && step <= 4;
+  const isVtAssessment = started && step === 4;
+  const isResultAssessment = started && step === 5;
+  const guidedProgress = [
+    null,
+    { number: 2, title: "QRS幅" },
+    { number: 3, title: "規則性" },
+    { number: 4, title: "12誘導心電図" },
+    { number: 5, title: "VTの可能性" },
+  ][step];
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
-      <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-4 pb-[calc(88px+env(safe-area-inset-bottom))] pt-[calc(12px+env(safe-area-inset-top))] sm:px-6 lg:pb-12">
-        <section className="hero-panel" aria-label="TachyScan Pro">
+    <main className={`min-h-screen overflow-x-hidden bg-slate-950 text-white ${isLanding ? "tachy-landing-screen" : ""} ${isFirstAssessment ? "tachy-first-screen" : ""} ${isGuidedAssessment ? "tachy-guided-screen" : ""} ${isVtAssessment ? "tachy-vt-screen" : ""} ${isResultAssessment ? "tachy-result-screen" : ""}`}>
+      <div className={`mx-auto flex min-h-screen w-full max-w-5xl flex-col px-4 pb-[calc(88px+env(safe-area-inset-bottom))] pt-[calc(12px+env(safe-area-inset-top))] sm:px-6 lg:pb-12 ${isLanding ? "tachy-landing-shell" : ""} ${isFirstAssessment ? "tachy-first-shell" : ""} ${isGuidedAssessment ? "tachy-guided-shell" : ""} ${isResultAssessment ? "tachy-result-shell" : ""}`}>
+        <section className={`hero-panel ${isLanding ? "landing-screen-header" : ""} ${isFirstAssessment ? "first-screen-header" : ""} ${isGuidedAssessment ? "guided-screen-header" : ""} ${isResultAssessment ? "result-screen-header" : ""}`} aria-label="TachyScan Pro">
           <div className="hero-copy">
-            <h1>TachyScan Pro</h1>
-            <p className="lead">血行動態・QRS幅・規則性から頻脈を整理します</p>
-            <button
-              type="button"
-              className="primary-action"
-              onClick={() => {
-                setStarted(true);
-                setStep(0);
-              }}
-            >
-              評価を開始
-            </button>
+            {isFirstAssessment ? (
+              <>
+                <div className="first-screen-brand">
+                  <span className="first-screen-brand-icon" aria-hidden="true">⚡</span>
+                  <div>
+                    <p>TachyScan Pro</p>
+                    <h1>頻脈初期対応支援</h1>
+                    <span>Tachycardia Assessment Tool</span>
+                  </div>
+                </div>
+                <div className="first-screen-progress" aria-label="進捗 1 / 6">
+                  <div>
+                    <span>STEP 1 / 6</span>
+                    <strong>血行動態の確認</strong>
+                  </div>
+                  <div
+                    className="first-screen-progress-track"
+                    role="progressbar"
+                    aria-valuemin={1}
+                    aria-valuemax={6}
+                    aria-valuenow={1}
+                  >
+                    <span />
+                  </div>
+                </div>
+              </>
+            ) : isGuidedAssessment && guidedProgress ? (
+              <>
+                <div className="first-screen-brand">
+                  <span className="first-screen-brand-icon" aria-hidden="true">⚡</span>
+                  <div>
+                    <p>TachyScan Pro</p>
+                    <h1>頻脈初期対応支援</h1>
+                    <span>Tachycardia Assessment Tool</span>
+                  </div>
+                </div>
+                <div className="first-screen-progress" aria-label={`進捗 ${guidedProgress.number} / 6`}>
+                  <div>
+                    <span>STEP {guidedProgress.number} / 6</span>
+                    <strong>{guidedProgress.title}</strong>
+                  </div>
+                  <div
+                    className="first-screen-progress-track"
+                    role="progressbar"
+                    aria-valuemin={1}
+                    aria-valuemax={6}
+                    aria-valuenow={guidedProgress.number}
+                  >
+                    <span style={{ width: `${(guidedProgress.number / 6) * 100}%` }} />
+                  </div>
+                </div>
+              </>
+            ) : isResultAssessment ? (
+              <>
+                <div className="first-screen-brand">
+                  <span className="first-screen-brand-icon" aria-hidden="true">⚡</span>
+                  <div>
+                    <p>TachyScan Pro</p>
+                    <h1>頻脈初期対応支援</h1>
+                    <span>Tachycardia Assessment Tool</span>
+                  </div>
+                </div>
+                <div className="first-screen-progress" aria-label="進捗 6 / 6">
+                  <div>
+                    <span>STEP 6 / 6</span>
+                    <strong>診断結果</strong>
+                  </div>
+                  <div
+                    className="first-screen-progress-track"
+                    role="progressbar"
+                    aria-valuemin={1}
+                    aria-valuemax={6}
+                    aria-valuenow={6}
+                  >
+                    <span style={{ width: "100%" }} />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="first-screen-brand landing-brand">
+                  <span className="first-screen-brand-icon" aria-hidden="true">⚡</span>
+                  <div>
+                    <p>TachyScan Pro</p>
+                    <h1>頻脈初期対応支援</h1>
+                    <span>Tachycardia Assessment Tool</span>
+                  </div>
+                </div>
+                <div className="landing-launch-copy">
+                  <p className="lead">血行動態・QRS幅・規則性から頻脈を整理します</p>
+                  <button
+                    type="button"
+                    className="primary-action"
+                    onClick={() => {
+                      setStarted(true);
+                      setStep(0);
+                    }}
+                  >
+                    評価を開始
+                  </button>
+                </div>
+              </>
+            )}
           </div>
           <GuideCharacter message={currentMessage} />
         </section>
 
         {redFlags.length > 0 && (
-          <section className="red-flag-card" aria-live="polite">
+          <section className={`red-flag-card ${isFirstAssessment ? "first-screen-alert" : ""} ${isGuidedAssessment ? "guided-screen-alert" : ""} ${isResultAssessment ? "result-screen-alert" : ""}`} aria-live="polite">
             <p className="section-label">Red Flag</p>
             <h2>{redFlags.join(" / ")}</h2>
             <p>危険所見があります。早めに再評価し、必要なら緊急対応を検討してください。</p>
@@ -251,7 +354,7 @@ export default function Home() {
         )}
 
         {started && (
-          <section className="mt-7 grid gap-7 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <section className={`mt-7 grid gap-7 lg:grid-cols-[minmax(0,1fr)_320px] ${isFirstAssessment ? "first-screen-content" : ""} ${isGuidedAssessment ? "guided-screen-content" : ""} ${isResultAssessment ? "result-screen-content" : ""}`}>
             <div>
               <StepIntro step={step} />
               <div className="mt-5">{renderStep()}</div>
@@ -274,7 +377,7 @@ export default function Home() {
       </div>
 
       {started && (
-        <nav className="bottom-nav" aria-label="ステップ操作">
+        <nav className={`bottom-nav ${isFirstAssessment ? "first-screen-nav" : ""} ${isGuidedAssessment ? "guided-screen-nav" : ""} ${isResultAssessment ? "result-screen-nav" : ""}`} aria-label="ステップ操作">
           <button type="button" onClick={goBack} disabled={step === 0}>戻る</button>
           <button type="button" onClick={reset}>リセット</button>
           <button type="button" onClick={goNext} disabled={step === 5}>次へ</button>
@@ -286,8 +389,8 @@ export default function Home() {
   function renderStep() {
     if (step === 0) {
       return (
-        <div className="input-card">
-          <div className="field-group">
+        <div className="input-card first-screen-card">
+          <div className="field-group first-screen-pulse-group">
             <p className="field-title">脈拍</p>
             <div className="choice-grid">
               <Choice selected={data.pulse === "present"} onClick={() => updateData({ pulse: "present" })}>脈あり</Choice>
@@ -299,6 +402,7 @@ export default function Home() {
             <button
               type="button"
               className={`choice full ${data.hemodynamicsStable ? "selected" : ""}`}
+              aria-pressed={data.hemodynamicsStable === true}
               onClick={() => updateData({ hemodynamicsStable: true, hemodynamics: {} })}
             >
               血行動態は安定している
@@ -317,8 +421,8 @@ export default function Home() {
 
     if (step === 1) {
       return (
-        <div className="input-card">
-          <div className="field-group">
+        <div className="input-card guided-screen-card qrs-screen-card">
+          <div className="field-group heart-rate-group">
             <label className="field-title" htmlFor="heart-rate">心拍数</label>
             <input
               id="heart-rate"
@@ -331,9 +435,9 @@ export default function Home() {
             />
             <p className="help-text">150/分前後の規則正しい頻拍では心房粗動2:1伝導を考えます。</p>
           </div>
-          <div className="field-group">
+          <div className="field-group qrs-choice-group">
             <p className="field-title">QRS幅</p>
-            <div className="choice-grid">
+            <div className="choice-grid qrs-choice-grid">
               <Choice selected={data.qrsWidth === "narrow"} onClick={() => updateData({ qrsWidth: "narrow" })}>Narrow QRS（120ms未満）</Choice>
               <Choice selected={data.qrsWidth === "wide"} danger onClick={() => updateData({ qrsWidth: "wide" })}>Wide QRS（120ms以上）</Choice>
             </div>
@@ -344,9 +448,9 @@ export default function Home() {
 
     if (step === 2) {
       return (
-        <div className="input-card">
+        <div className="input-card guided-screen-card rhythm-screen-card">
           <p className="field-title">規則性</p>
-          <div className="choice-grid">
+          <div className="choice-grid rhythm-choice-grid">
             <Choice selected={data.rhythm === "regular"} onClick={() => updateData({ rhythm: "regular" })}>規則的</Choice>
             <Choice selected={data.rhythm === "irregular"} onClick={() => updateData({ rhythm: "irregular" })}>不規則</Choice>
           </div>
@@ -356,16 +460,16 @@ export default function Home() {
 
     if (step === 3) {
       return (
-        <div className="input-card">
+        <div className="input-card guided-screen-card ecg-screen-card">
           <p className="field-title">12誘導心電図</p>
-          <div className="choice-grid">
+          <div className="choice-grid p-wave-grid">
             <Choice selected={data.pWave === "present"} onClick={() => updateData({ pWave: "present" })}>P波あり</Choice>
             <Choice selected={data.pWave === "absent"} onClick={() => updateData({ pWave: "absent" })}>P波なし</Choice>
             <Choice selected={data.pWave === "unclear"} onClick={() => updateData({ pWave: "unclear" })}>不明瞭</Choice>
           </div>
           <div className="field-group">
             <p className="field-title">背景疾患</p>
-            <div className="choice-grid">
+            <div className="choice-grid background-grid">
               {backgroundItems.map((item) => (
                 <Choice key={item.id} selected={!!data.backgrounds[item.id]} onClick={() => toggleRecord("backgrounds", item.id)}>
                   {item.label}
@@ -379,18 +483,18 @@ export default function Home() {
 
     if (step === 4) {
       return (
-        <div className="input-card">
+        <div className="input-card guided-screen-card vt-screen-card">
           <p className="field-title">VT評価</p>
           {hasWideQrsConcern(data) ? (
             <>
-              <div className="choice-grid">
+              <div className="choice-grid vt-findings-grid">
                 {vtItems.map((item) => (
                   <Choice key={item.id} selected={!!data.vtFindings[item.id]} danger onClick={() => toggleRecord("vtFindings", item.id)}>
                     {item.label}
                   </Choice>
                 ))}
               </div>
-              <div className="mt-4 choice-grid">
+              <div className="mt-4 choice-grid vt-duration-grid">
                 <Choice selected={data.vtDuration === "nonSustained"} onClick={() => updateData({ vtDuration: "nonSustained" })}>30秒未満</Choice>
                 <Choice selected={data.vtDuration === "sustained"} danger onClick={() => updateData({ vtDuration: "sustained" })}>30秒以上</Choice>
               </div>
@@ -435,8 +539,8 @@ function StepIntro({ step }: { step: number }) {
   ];
   const item = titles[step];
   return (
-    <div className="step-intro">
-      <p><span aria-hidden="true">●</span> {item[0]}</p>
+    <div className={`step-intro ${step === 0 ? "first-screen-intro" : ""} ${step === 4 ? "vt-step-intro" : ""}`}>
+      <p><span aria-hidden="true">●</span> {step === 0 ? "初期評価" : step <= 4 ? "評価項目" : "評価結果"}</p>
       <h2>{item[1]}</h2>
       <span>{item[2]}</span>
     </div>
@@ -455,7 +559,12 @@ function Choice({
   onClick: () => void;
 }) {
   return (
-    <button type="button" className={`choice ${selected ? "selected" : ""} ${danger ? "danger" : ""}`} onClick={onClick}>
+    <button
+      type="button"
+      className={`choice ${selected ? "selected" : ""} ${danger ? "danger" : ""}`}
+      aria-pressed={selected}
+      onClick={onClick}
+    >
       {children}
     </button>
   );
@@ -465,36 +574,44 @@ function Result({ diagnosis, data }: { diagnosis: Diagnosis; data: Data }) {
   const riskLabel = diagnosis.risk === "critical" ? "緊急対応" : diagnosis.risk === "high" ? "高リスク" : "要評価";
 
   return (
-    <section className="result-card">
-      <p className="section-label card-label">診断結果</p>
-      <h2>{diagnosis.category}</h2>
-      <p className={`risk-pill ${diagnosis.risk}`}>{riskLabel}</p>
-
-      <div className="result-block">
-        <h3>考える候補</h3>
-        <ul>{diagnosis.candidates.map((item) => <li key={item}>{item}</li>)}</ul>
-      </div>
-      <div className="result-grid">
+    <section className="result-card refreshed-result-card">
+      <div className={`result-urgency ${diagnosis.risk}`} aria-label={`緊急度: ${riskLabel}`}>
+        <span className="result-urgency-icon" aria-hidden="true">{diagnosis.risk === "medium" ? "i" : "!"}</span>
         <div>
-          <h3>なぜ考えるか</h3>
-          <p>{diagnosis.why}</p>
+          <p>緊急度</p>
+          <strong>{riskLabel}</strong>
         </div>
-        <div>
-          <h3>次に確認すること</h3>
-          <p>{diagnosis.next}</p>
-        </div>
-        <div>
-          <h3>見逃しポイント</h3>
-          <p>{diagnosis.miss}</p>
-        </div>
-      </div>
-      <div className="result-block">
-        <h3>初期対応</h3>
-        <ul>{diagnosis.action.map((item) => <li key={item}>{item}</li>)}</ul>
       </div>
       {hasHemodynamicRedFlag(data) && (
         <p className="result-note">血行動態不安定では、鑑別の精密化より蘇生・循環管理を優先します。</p>
       )}
+
+      <div className="result-diagnosis">
+        <p className="section-label card-label">診断分類</p>
+        <h2>{diagnosis.category}</h2>
+      </div>
+      <div className="result-block result-candidates">
+        <h3>考える候補</h3>
+        <ul>{diagnosis.candidates.map((item) => <li key={item}>{item}</li>)}</ul>
+      </div>
+      <div className="result-block result-actions">
+        <h3>初期対応</h3>
+        <ul>{diagnosis.action.map((item) => <li key={item}>{item}</li>)}</ul>
+      </div>
+      <div className="result-grid">
+        <div className="result-detail-card">
+          <h3>なぜ考えるか</h3>
+          <p>{diagnosis.why}</p>
+        </div>
+        <div className="result-detail-card">
+          <h3>次に確認すること</h3>
+          <p>{diagnosis.next}</p>
+        </div>
+        <div className="result-detail-card">
+          <h3>見逃しポイント</h3>
+          <p>{diagnosis.miss}</p>
+        </div>
+      </div>
     </section>
   );
 }
