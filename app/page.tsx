@@ -217,7 +217,7 @@ export const apps: AppItem[] = [
   },
   {
     id: "collagen-atlas",
-    title: "Collagen Atlas",
+    title: "膠原病アトラス",
     subtitle: "Dr. Ito",
     url: "https://collagen-atlas.vercel.app/",
     icon: "🧬",
