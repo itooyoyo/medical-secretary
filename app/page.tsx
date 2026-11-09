@@ -17,9 +17,10 @@ type AppCategoryName =
   | "内分泌"
   | "神経"
   | "循環器"
-  | "内科総合";
+  | "内科総合"
+  | "膠原病";
 
-type BadgeStatus = "NEW" | "BETA" | "Stable" | "Deprecated";
+type BadgeStatus = "NEW" | "BETA" | "Stable" | "Deprecated" | "医学レビュー中";
 
 type AppItem = {
   id: string;
@@ -74,6 +75,7 @@ export const categories: AppCategory[] = [
   { title: "神経", description: "Neurology" },
   { title: "循環器", description: "Cardiology" },
   { title: "内科総合", description: "General Medicine" },
+  { title: "膠原病", description: "Rheumatology" },
 ];
 
 export const apps: AppItem[] = [
@@ -212,6 +214,19 @@ export const apps: AppItem[] = [
     estimatedTime: "3分",
     badges: ["Stable"],
     tags: ["甲状腺", "クリーゼ", "内分泌", "救急"],
+  },
+  {
+    id: "collagen-atlas",
+    title: "Collagen Atlas",
+    subtitle: "Dr. Ito",
+    url: "https://collagen-atlas.vercel.app/",
+    icon: "🧬",
+    category: "膠原病",
+    description: "膠原病の分類・病態・症候を学び、症状から鑑別疾患と必要な検査を整理する医師向け学習・診療支援ツール。",
+    notice: "第三者による医学監修は未実施です。診断を確定するものではありません。",
+    estimatedTime: "",
+    badges: ["医学レビュー中"],
+    tags: ["膠原病", "鑑別", "自己抗体"],
   },
 ];
 
