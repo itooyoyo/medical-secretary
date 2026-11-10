@@ -235,7 +235,7 @@ export const apps: AppItem[] = [
     title: "甲状腺アトラス",
     url: "https://thyroid-atlas.vercel.app/",
     icon: "📘",
-    category: "内分泌・代謝",
+    category: "内分泌",
     description: "甲状腺疾患の病態・検査・鑑別を学ぶ教育アトラス",
     estimatedTime: "",
     badges: [],
