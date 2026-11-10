@@ -18,7 +18,8 @@ type AppCategoryName =
   | "神経"
   | "循環器"
   | "内科総合"
-  | "膠原病";
+  | "膠原病"
+  | "内分泌・代謝";
 
 type BadgeStatus = "NEW" | "BETA" | "Stable" | "Deprecated" | "医学レビュー中";
 
@@ -76,6 +77,7 @@ export const categories: AppCategory[] = [
   { title: "循環器", description: "Cardiology" },
   { title: "内科総合", description: "General Medicine" },
   { title: "膠原病", description: "Rheumatology" },
+  { title: "内分泌・代謝", description: "Endocrinology & Metabolism" },
 ];
 
 export const apps: AppItem[] = [
@@ -227,6 +229,17 @@ export const apps: AppItem[] = [
     estimatedTime: "",
     badges: ["医学レビュー中"],
     tags: ["膠原病", "鑑別", "自己抗体"],
+  },
+  {
+    id: "thyroid-atlas",
+    title: "甲状腺アトラス",
+    url: "https://thyroid-atlas.vercel.app/",
+    icon: "📘",
+    category: "内分泌・代謝",
+    description: "甲状腺疾患の病態・検査・鑑別を学ぶ教育アトラス",
+    estimatedTime: "",
+    badges: [],
+    tags: ["甲状腺", "検査", "鑑別"],
   },
 ];
 
