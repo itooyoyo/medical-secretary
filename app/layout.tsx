@@ -4,7 +4,7 @@ import "./components/medical-kit.css";
 
 export const metadata: Metadata = {
   title: "Dr. Ito Medical Hub",
-  description: "Dr. Ito の診断支援アプリをまとめたメディカルダッシュボードです。",
+  description: "医療従事者のための医学教育・臨床推論学習プラットフォームです。",
 };
 
 export default function RootLayout({

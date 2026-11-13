@@ -128,11 +128,11 @@ export const apps: AppItem[] = [
   },
   {
     id: "diabetes-treatment",
-    title: "糖尿病治療薬選択支援",
+    title: "糖尿病アトラス",
     url: "https://diabetes-treatment-assistant.vercel.app/",
     icon: "💊",
     category: "内分泌",
-    description: "患者背景に応じた糖尿病治療薬の選択を補助。",
+    description: "糖尿病の病型・検査・治療薬・血糖モニタリングを体系的に学べる医学教育アトラス。薬剤選択の症例学習機能も収録。",
     estimatedTime: "3分",
     badges: ["Stable"],
     tags: ["糖尿病", "薬剤選択", "SGLT2", "GLP-1"],
@@ -737,14 +737,23 @@ export default function Home() {
           <h1 className="truncate text-lg font-black leading-tight text-white sm:text-3xl">
             Medical AI Console
           </h1>
-          <p className="truncate text-[11px] font-bold text-slate-400 sm:text-sm">
-            Clinical Decision Support Platform
+          <p className="text-[11px] font-bold leading-4 text-slate-400 sm:text-sm">
+            医療従事者のための医学教育・臨床推論学習プラットフォーム
           </p>
         </div>
         <div className="grid justify-items-end gap-1 text-[10px] font-black text-slate-400">
           <span>{VERSION}</span>
           <span className="text-emerald-300">● Online</span>
         </div>
+      </section>
+
+      <section
+        aria-label="教育目的に関する注意"
+        className="rounded-md border border-cyan-200/10 bg-slate-950/35 px-3 py-2.5"
+      >
+        <p className="text-[11px] font-medium leading-5 text-slate-400 sm:text-xs">
+          本サイトは、医学知識の習得、臨床推論の学習および症例演習を目的とした教育用コンテンツです。実際の患者に対する診断、治療方針の決定、処方判断を目的とするものではありません。診療に際しては、最新の診療ガイドラインや医薬品の電子添文を確認し、担当医が独立して判断してください。
+        </p>
       </section>
 
       <section

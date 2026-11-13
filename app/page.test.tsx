@@ -91,6 +91,26 @@ describe("Medical AI Console v3", () => {
     );
   });
 
+  it("presents the diabetes atlas as an educational resource linked to its home", () => {
+    expect(apps.find((app) => app.id === "diabetes-treatment")).toMatchObject({
+      title: "糖尿病アトラス",
+      url: "https://diabetes-treatment-assistant.vercel.app/",
+      description:
+        "糖尿病の病型・検査・治療薬・血糖モニタリングを体系的に学べる医学教育アトラス。薬剤選択の症例学習機能も収録。",
+    });
+  });
+
+  it("states the platform's educational purpose and clinical limitations", async () => {
+    renderConsole();
+
+    expect(
+      await screen.findByText("医療従事者のための医学教育・臨床推論学習プラットフォーム"),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("教育目的に関する注意")).toHaveTextContent(
+      "実際の患者に対する診断、治療方針の決定、処方判断を目的とするものではありません",
+    );
+  });
+
   it("registers the Calcium Disorder Navigator in the emergency category", () => {
     const calciumApp = apps.find((app) => app.id === "calcium-disorder");
 
@@ -203,7 +223,7 @@ describe("Medical AI Console v3", () => {
       target: { value: "SGLT2" },
     });
 
-    expect(appsSection().getByText("糖尿病治療薬選択支援")).toBeInTheDocument();
+    expect(appsSection().getByText("糖尿病アトラス")).toBeInTheDocument();
   });
 
   it("searches the edema app by its English subtitle", async () => {
@@ -282,7 +302,7 @@ describe("Medical AI Console v3", () => {
     [
       "感染症・抗菌薬初期選択支援",
       "発熱・CRP診断支援",
-      "糖尿病治療薬選択支援",
+      "糖尿病アトラス",
       "頻脈初期対応支援",
       "神経局在診断支援",
       "酸塩基異常診断支援",
